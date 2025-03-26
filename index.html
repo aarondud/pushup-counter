@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Push-Up Counter</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- MediaPipe Tasks Vision Scripts -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm/vision_wasm_internal.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/vision.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"
+      defer
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="theme-toggle">
+        <label class="switch">
+          <input type="checkbox" id="themeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span>Dark Mode</span>
+      </div>
+
+      <h1>Push-Up Counter</h1>
+
+      <p class="instructions">
+        Position your camera so your whole body, including feet, is fully
+        visible for accurate form tracking.
+      </p>
+
+      <div id="counter" class="counter" style="text-align: center">
+        Push-Ups: 0
+      </div>
+
+      <div class="video-container">
+        <canvas id="videoCanvas"></canvas>
+        <div id="feedback" class="feedback"></div>
+        <div id="dataPoints" class="data-points"></div>
+      </div>
+
+      <div class="controls">
+        <button id="reset" class="btn" disabled>Reset</button>
+      </div>
+
+      <div class="stats">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
