@@ -22,6 +22,11 @@ const dataPoints = document.getElementById("dataPoints");
 const themeToggle = document.getElementById("themeToggle");
 const pauseButton = document.getElementById("pause");
 const playButton = document.getElementById("play");
+const pushUpStatsBody = document.getElementById("pushUpStatsBody");
+
+// Verify DOM elements
+console.log("Counter element:", counter);
+console.log("PushUpStatsBody element:", pushUpStatsBody);
 
 // Initialize DrawingUtils for drawing landmarks
 const drawingUtils = new DrawingUtils(ctx);
@@ -89,12 +94,12 @@ function processVideoFrame(videoElement) {
     lastVideoTime = currentTime;
     ctx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
     ctx.drawImage(videoElement, 0, 0, videoCanvas.width, videoCanvas.height);
-    console.log("Drawing video frame");
+    // console.log("Drawing video frame");
     if (poseLandmarker) {
       poseLandmarker.detectForVideo(videoElement, currentTime, (results) => {
         if (results.landmarks && results.landmarks.length > 0) {
           const landmarks = results.landmarks[0];
-          console.log("Landmarks detected:", landmarks);
+          // console.log("Landmarks detected:", landmarks);
           drawLandmarks(landmarks);
           processPoseResults(results);
         }
@@ -125,7 +130,7 @@ function drawLandmarks(landmarks) {
       x: landmark.x * videoCanvas.width,
       y: landmark.y * videoCanvas.height,
     };
-    console.log("Landmark:", normalized);
+    //console.log("Landmark:", normalized);
     return normalized;
   });
 
@@ -256,30 +261,27 @@ function processPoseResults(results) {
   const knee = landmarks[25]; // Left knee
   const ankle = landmarks[27]; // Left ankle
 
-  // Check if all required landmarks are in view
-  const requiredLandmarks = [
+  // Check if upper body landmarks (required for push-up detection) are in view
+  const requiredLandmarksForDetection = [
     leftShoulder,
     leftElbow,
     leftWrist,
     rightShoulder,
     rightElbow,
     rightWrist,
-    hip,
-    knee,
-    ankle,
   ];
-  const allLandmarksInView = requiredLandmarks.every(isLandmarkInView);
+  const upperBodyInView = requiredLandmarksForDetection.every(isLandmarkInView);
 
-  if (!allLandmarksInView) {
+  if (!upperBodyInView) {
     feedback.textContent =
-      "Please adjust the camera to show your full body for push-up counting.";
+      "Please adjust the camera to show your upper body for push-up counting.";
     feedback.className = "feedback error show";
     dataPoints.textContent =
       "Left Elbow Angle: N/A, Right Elbow Angle: N/A, Left Wrist Depth: N/A, Right Wrist Depth: N/A, Shoulder-Hip Angle: N/A, Back Straightness: N/A";
     return;
   }
 
-  // If all landmarks are in view, show a green confirmation pop-up
+  // If upper body is in view, show a green confirmation pop-up
   feedback.textContent = "Ready to count!";
   feedback.className = "feedback success show";
 
@@ -289,31 +291,64 @@ function processPoseResults(results) {
   const leftWristDepth = leftWrist.y - leftElbow.y;
   const rightWristDepth = rightWrist.y - rightElbow.y;
 
-  // Calculate shoulder-to-hip angle (for incline/decline push-ups)
-  const shoulderHipAngle = calculateAngle(leftShoulder, hip, knee);
+  // Calculate shoulder-to-hip angle and back straightness (use estimated landmarks if necessary)
+  const shoulderHipAngle =
+    hip && knee ? calculateAngle(leftShoulder, hip, knee) : null;
+  const backStraightness =
+    hip && ankle ? calculateAngle(leftShoulder, hip, ankle) : null;
 
-  // Calculate back straightness (angle between shoulder, hip, and ankle)
-  const backStraightness = calculateAngle(leftShoulder, hip, ankle);
-
-  // Use the average elbow angle for push-up detection
+  // Use the average elbow angle and wrist depth for push-up detection
   const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
   const avgWristDepth = (leftWristDepth + rightWristDepth) / 2;
 
-  if (avgElbowAngle < 90 && avgWristDepth > 0.2 && status === "up") {
+  // Log metrics for debugging
+  console.log("Push-up metrics:", {
+    avgElbowAngle: avgElbowAngle.toFixed(2),
+    avgWristDepth: avgWristDepth.toFixed(2),
+    status,
+  });
+
+  // Relaxed thresholds for push-up detection
+  if (avgElbowAngle < 110 && avgWristDepth > 0.1 && status === "up") {
     status = "down";
-  } else if (avgElbowAngle > 160 && status === "down") {
+    console.log("Push-up down phase detected", {
+      avgElbowAngle,
+      avgWristDepth,
+    });
+  } else if (avgElbowAngle > 140 && status === "down") {
     status = "up";
     stats.valid++;
     stats.total++;
+    console.log("Push-up counted:", stats.valid);
     counter.textContent = `Push-Ups: ${stats.valid}`;
+    console.log("Counter updated to:", counter.textContent);
     feedback.textContent = "Push-Up Counted!";
     feedback.className = "feedback success show";
-    new Audio("beep.mp3").play();
+
+    // Trigger background pulse animation
+    document.body.classList.remove("pulse");
+    void document.body.offsetWidth; // Force animation restart
+    document.body.classList.add("pulse");
+
+    // Play confirmation sound
+    new Audio("YEAHBUDDY.mp3").play();
+
+    // Log push-up stats
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${stats.valid}</td>
+      <td>${avgWristDepth.toFixed(2)}</td>
+      <td>${backStraightness ? Math.round(backStraightness) : "N/A"}</td>
+      <td>${shoulderHipAngle ? Math.round(shoulderHipAngle) : "N/A"}</td>
+    `;
+    pushUpStatsBody.appendChild(row);
+    console.log("Stats table updated with new row");
+
     setTimeout(() => (feedback.className = "feedback"), 2000);
-  } else if (avgElbowAngle > 90 && status === "down") {
+  } else if (avgElbowAngle > 110 && status === "down") {
     feedback.textContent = "Elbows Not Bent Enough";
     feedback.className = "feedback error show";
-  } else if (avgWristDepth < 0.2 && status === "down") {
+  } else if (avgWristDepth < 0.1 && status === "down") {
     feedback.textContent = "Too High";
     feedback.className = "feedback error show";
   }
@@ -324,18 +359,21 @@ function processPoseResults(results) {
     rightElbowAngle
   )}°, Left Wrist Depth: ${leftWristDepth.toFixed(
     2
-  )}, Right Wrist Depth: ${rightWristDepth.toFixed(
-    2
-  )}, Shoulder-Hip Angle: ${Math.round(
-    shoulderHipAngle
-  )}°, Back Straightness: ${Math.round(backStraightness)}°`;
+  )}, Right Wrist Depth: ${rightWristDepth.toFixed(2)}, Shoulder-Hip Angle: ${
+    shoulderHipAngle ? Math.round(shoulderHipAngle) : "N/A"
+  }°, Back Straightness: ${
+    backStraightness ? Math.round(backStraightness) : "N/A"
+  }°`;
 }
 
 // Event Listeners
 document.getElementById("reset").addEventListener("click", () => {
   stats.valid = 0;
+  stats.total = 0;
   counter.textContent = "Push-Ups: 0";
   feedback.textContent = "";
+  pushUpStatsBody.innerHTML = ""; // Clear stats table
+  console.log("Counter reset to 0");
 });
 
 pauseButton.addEventListener("click", () => {

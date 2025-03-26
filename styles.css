@@ -7,6 +7,7 @@
     --button-bg: #4CAF50;
     --button-text: white;
     --card-bg: #f5f5f5;
+    --accent-blue: #2196f3;
 }
 
 [data-theme="dark"] {
@@ -18,6 +19,7 @@
     --button-bg: #66bb6a;
     --button-text: white;
     --card-bg: #2d2d2d;
+    --accent-blue: #1a73e8;
 }
 
 * {
@@ -67,6 +69,7 @@ h1 {
     width: 100%;
     height: auto;
     display: block;
+    background-color: #000;
 }
 
 .feedback {
@@ -103,7 +106,7 @@ h1 {
     color: white;
     border-radius: 4px;
     font-weight: bold;
-    margin-bottom: 20px
+    margin-bottom: 20px;
 }
 
 .data-points {
@@ -121,7 +124,7 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
 .btn {
@@ -138,6 +141,7 @@ h1 {
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background-color: #ccc;
 }
 
 .stats {
@@ -146,6 +150,37 @@ h1 {
     padding: 20px;
     background-color: var(--card-bg);
     border-radius: 8px;
+    margin-top: 20px;
+}
+
+.stats h2 {
+    text-align: center;
+}
+
+#pushUpStats {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#pushUpStats th,
+#pushUpStats td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#pushUpStats th {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+#pushUpStats tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+[data-theme="dark"] #pushUpStats tbody tr:nth-child(even) {
+    background-color: #444;
 }
 
 .theme-toggle {
@@ -154,6 +189,9 @@ h1 {
     justify-content: flex-end;
     gap: 8px;
     margin-bottom: 20px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
 }
 
 .switch {
@@ -177,7 +215,7 @@ h1 {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 34px;
 }
 
@@ -189,14 +227,33 @@ h1 {
     left: 4px;
     bottom: 4px;
     background-color: white;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 50%;
 }
 
 input:checked+.slider {
-    background-color: var(--primary);
+    background-color: var(--accent-blue);
 }
 
 input:checked+.slider:before {
     transform: translateX(26px);
+}
+
+/* Background pulse animation */
+@keyframes pulseGreen {
+    0% {
+        background-color: var(--bg);
+    }
+
+    50% {
+        background-color: rgba(0, 255, 0, 0.3);
+    }
+
+    100% {
+        background-color: var(--bg);
+    }
+}
+
+body.pulse {
+    animation: pulseGreen 1s ease;
 }
