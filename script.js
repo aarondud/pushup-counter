@@ -94,12 +94,12 @@ function processVideoFrame(videoElement) {
     lastVideoTime = currentTime;
     ctx.clearRect(0, 0, videoCanvas.width, videoCanvas.height);
     ctx.drawImage(videoElement, 0, 0, videoCanvas.width, videoCanvas.height);
-    // console.log("Drawing video frame");
+    console.log("Drawing video frame");
     if (poseLandmarker) {
       poseLandmarker.detectForVideo(videoElement, currentTime, (results) => {
         if (results.landmarks && results.landmarks.length > 0) {
           const landmarks = results.landmarks[0];
-          // console.log("Landmarks detected:", landmarks);
+          console.log("Landmarks detected:", landmarks);
           drawLandmarks(landmarks);
           processPoseResults(results);
         }
@@ -130,7 +130,7 @@ function drawLandmarks(landmarks) {
       x: landmark.x * videoCanvas.width,
       y: landmark.y * videoCanvas.height,
     };
-    //console.log("Landmark:", normalized);
+    console.log("Landmark:", normalized);
     return normalized;
   });
 
@@ -243,8 +243,14 @@ function processPoseResults(results) {
     console.log("No landmarks in processPoseResults");
     feedback.textContent = "Please adjust the camera to show your body.";
     feedback.className = "feedback error show";
-    dataPoints.textContent =
-      "Left Elbow Angle: N/A, Right Elbow Angle: N/A, Left Wrist Depth: N/A, Right Wrist Depth: N/A, Shoulder-Hip Angle: N/A, Back Straightness: N/A";
+    updateDataPoints({
+      leftElbowAngle: "N/A",
+      rightElbowAngle: "N/A",
+      leftWristDepth: "N/A",
+      rightWristDepth: "N/A",
+      shoulderHipAngle: "N/A",
+      backStraightness: "N/A",
+    });
     return;
   }
 
@@ -276,8 +282,14 @@ function processPoseResults(results) {
     feedback.textContent =
       "Please adjust the camera to show your upper body for push-up counting.";
     feedback.className = "feedback error show";
-    dataPoints.textContent =
-      "Left Elbow Angle: N/A, Right Elbow Angle: N/A, Left Wrist Depth: N/A, Right Wrist Depth: N/A, Shoulder-Hip Angle: N/A, Back Straightness: N/A";
+    updateDataPoints({
+      leftElbowAngle: "N/A",
+      rightElbowAngle: "N/A",
+      leftWristDepth: "N/A",
+      rightWristDepth: "N/A",
+      shoulderHipAngle: "N/A",
+      backStraightness: "N/A",
+    });
     return;
   }
 
@@ -330,7 +342,7 @@ function processPoseResults(results) {
     void document.body.offsetWidth; // Force animation restart
     document.body.classList.add("pulse");
 
-    // Play confirmation sound
+    // Play YEAHBUDDY sound
     new Audio("YEAHBUDDY.mp3").play();
 
     // Log push-up stats
@@ -353,17 +365,54 @@ function processPoseResults(results) {
     feedback.className = "feedback error show";
   }
 
-  dataPoints.textContent = `Left Elbow Angle: ${Math.round(
-    leftElbowAngle
-  )}°, Right Elbow Angle: ${Math.round(
-    rightElbowAngle
-  )}°, Left Wrist Depth: ${leftWristDepth.toFixed(
-    2
-  )}, Right Wrist Depth: ${rightWristDepth.toFixed(2)}, Shoulder-Hip Angle: ${
-    shoulderHipAngle ? Math.round(shoulderHipAngle) : "N/A"
-  }°, Back Straightness: ${
-    backStraightness ? Math.round(backStraightness) : "N/A"
-  }°`;
+  // Update data points in grid format
+  updateDataPoints({
+    leftElbowAngle: Math.round(leftElbowAngle),
+    rightElbowAngle: Math.round(rightElbowAngle),
+    leftWristDepth: leftWristDepth.toFixed(2),
+    rightWristDepth: rightWristDepth.toFixed(2),
+    shoulderHipAngle: shoulderHipAngle ? Math.round(shoulderHipAngle) : "N/A",
+    backStraightness: backStraightness ? Math.round(backStraightness) : "N/A",
+  });
+}
+
+// Helper function to update data points in grid format
+function updateDataPoints({
+  leftElbowAngle,
+  rightElbowAngle,
+  leftWristDepth,
+  rightWristDepth,
+  shoulderHipAngle,
+  backStraightness,
+}) {
+  dataPoints.innerHTML = `
+    <div class="data-points-grid">
+      <div>
+        <span class="label">Left Elbow Angle:</span>
+        <span>${leftElbowAngle}°</span>
+      </div>
+      <div>
+        <span class="label">Right Elbow Angle:</span>
+        <span>${rightElbowAngle}°</span>
+      </div>
+      <div>
+        <span class="label">Left Wrist Depth:</span>
+        <span>${leftWristDepth}</span>
+      </div>
+      <div>
+        <span class="label">Right Wrist Depth:</span>
+        <span>${rightWristDepth}</span>
+      </div>
+      <div>
+        <span class="label">Shoulder-Hip Angle:</span>
+        <span>${shoulderHipAngle}°</span>
+      </div>
+      <div>
+        <span class="label">Back Straightness:</span>
+        <span>${backStraightness}°</span>
+      </div>
+    </div>
+  `;
 }
 
 // Event Listeners

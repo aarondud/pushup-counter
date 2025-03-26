@@ -4,10 +4,14 @@
     --primary: #4CAF50;
     --error: #f44336;
     --success: #4CAF50;
-    --button-bg: #4CAF50;
+    --accent-blue: #2196f3;
+    --button-bg: #2196f3;
     --button-text: white;
     --card-bg: #f5f5f5;
-    --accent-blue: #2196f3;
+    --counter-bg: #2196f3;
+    --counter-text: white;
+    --border-light: #ddd;
+    --border-dark: #555;
 }
 
 [data-theme="dark"] {
@@ -16,10 +20,12 @@
     --primary: #66bb6a;
     --error: #ef5350;
     --success: #66bb6a;
-    --button-bg: #66bb6a;
+    --accent-blue: #1a73e8;
+    --button-bg: #1a73e8;
     --button-text: white;
     --card-bg: #2d2d2d;
-    --accent-blue: #1a73e8;
+    --counter-bg: #1a73e8;
+    --counter-text: white;
 }
 
 * {
@@ -33,26 +39,63 @@ body {
     background-color: var(--bg);
     color: var(--text);
     transition: background-color 0.3s, color 0.3s;
+    padding-top: 100px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    flex: 1;
+    text-align: left;
+}
+
+.header .counter {
+    flex: 1;
+    text-align: center;
+    padding: 10px 20px;
+    background-color: var(--counter-bg);
+    color: var(--counter-text);
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.header .counter:hover {
+    transform: scale(1.05);
+}
+
+.header .theme-toggle {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+    position: static;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.instructions {
-    position: relative;
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: var(--card-bg);
-    border-radius: 8px;
 }
 
 .video-container {
@@ -82,6 +125,7 @@ h1 {
     font-weight: bold;
     opacity: 0;
     transition: opacity 0.3s;
+    text-align: center;
 }
 
 .feedback.show {
@@ -98,26 +142,41 @@ h1 {
     color: white;
 }
 
-.counter {
-    position: relative;
-    justify-content: center;
-    padding: 8px 16px;
-    background-color: var(--primary);
-    color: white;
-    border-radius: 4px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
 .data-points {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 20px;
     padding: 8px 16px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    background-color: var(--card-bg);
+    color: var(--text);
     border-radius: 4px;
     font-size: 14px;
+}
+
+.data-points-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* Three columns by default */
+    gap: 8px 16px;
+    align-items: center;
+}
+
+.data-points-grid .label {
+    font-weight: bold;
+}
+
+/* Medium screens: Two columns */
+@media (max-width: 800px) {
+    .data-points-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Small screens: One column */
+@media (max-width: 600px) {
+    .data-points-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .controls {
@@ -145,12 +204,14 @@ h1 {
 }
 
 .stats {
-    max-width: 600px;
+    width: 100%;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     background-color: var(--card-bg);
     border-radius: 8px;
     margin-top: 20px;
+    overflow-x: auto;
 }
 
 .stats h2 {
@@ -167,7 +228,8 @@ h1 {
 #pushUpStats td {
     padding: 8px;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-light);
+    white-space: nowrap;
 }
 
 #pushUpStats th {
@@ -179,19 +241,29 @@ h1 {
     background-color: #f2f2f2;
 }
 
+[data-theme="dark"] #pushUpStats th,
+[data-theme="dark"] #pushUpStats td {
+    border-color: var(--border-dark);
+}
+
 [data-theme="dark"] #pushUpStats tbody tr:nth-child(even) {
     background-color: #444;
+}
+
+@media (max-width: 600px) {
+
+    #pushUpStats th,
+    #pushUpStats td {
+        padding: 4px;
+        font-size: 12px;
+        white-space: normal;
+    }
 }
 
 .theme-toggle {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 8px;
-    margin-bottom: 20px;
-    position: absolute;
-    top: 20px;
-    right: 20px;
 }
 
 .switch {
