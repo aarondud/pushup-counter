@@ -97,6 +97,7 @@ h1 {
 
 .counter {
     position: relative;
+    justify-content: center;
     padding: 8px 16px;
     background-color: var(--primary);
     color: white;
