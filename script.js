@@ -10,7 +10,6 @@ class PushUpApp {
     this.uiManager = new UIManager();
     this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
     this.exerciseDetector = new PushUpDetector(
-      //() => this.uiManager.triggerPulseAnimation(),
       (exerciseData) => {
         this.uiManager.triggerPulseAnimation();
         this.uiManager.updateStatsTable(exerciseData);
@@ -51,7 +50,6 @@ class PushUpApp {
 
     const metrics = PoseCalculations.calculateMetrics(landmarks);
     this.exerciseDetector.processPose(landmarks, metrics);
-
     this.uiManager.updateDataPoints(metrics);
   }
 }

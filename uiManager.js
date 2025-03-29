@@ -16,6 +16,23 @@ export class UIManager {
     this.lastDataPoints = null;
     this.setupEventListeners();
 
+    // Set system theme based on system preferences
+    const prefersDarkScheme = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    if (prefersDarkScheme) {
+      document.body.dataset.theme = "dark";
+      this.themeToggle.checked = true;
+    } else {
+      document.body.dataset.theme = "light";
+      this.themeToggle.checked = false;
+    }
+
+    // Show tutorial modal every session
+    // this.tutorialModal.classList.add("show");
+
+    // Show tutorial modal once
     if (!localStorage.getItem("tutorialShown")) {
       this.tutorialModal.classList.add("show");
       localStorage.setItem("tutorialShown", "true");
