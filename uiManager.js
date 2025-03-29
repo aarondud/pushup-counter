@@ -4,39 +4,50 @@ export class UIManager {
   constructor() {
     this.feedback = document.getElementById("feedback");
     this.counter = document.getElementById("counter");
+
+    // Data elements
     this.dataPoints = document.getElementById("dataPoints");
-    this.themeToggle = document.getElementById("themeToggle");
-    this.pauseButton = document.getElementById("pause");
-    this.playButton = document.getElementById("play");
     this.pushUpStatsTable = document.getElementById("pushUpStats");
     this.pushUpStatsBody = document.getElementById("pushUpStatsBody");
+
+    // Modal elements
     this.tutorialModal = document.getElementById("tutorialModal");
+    this.infoModal = document.getElementById("infoModal");
+
+    // Controls
+    this.pauseButton = document.getElementById("pause");
+    this.playButton = document.getElementById("play");
+
+    // Menu elements
+    this.menuToggle = document.getElementById("menuToggle");
+    this.sideMenu = document.getElementById("sideMenu");
+    this.menuOverlay = document.getElementById("menuOverlay");
+    this.menuToggle.addEventListener("click", () => this.toggleMenu());
+    document.querySelector(".memoji-icon").addEventListener("click", () => {
+      window.open("https://aarondudley.vercel.app", "_blank");
+    });
+
+    // Add elements to DOM
+    document.body.appendChild(this.sideMenu);
+    document.body.appendChild(this.menuOverlay);
+
+    // Initialise
     this.currentCount = 0;
     this.currentMotion = "";
     this.lastDataPoints = null;
+
     this.setupEventListeners();
-
-    // Set system theme based on system preferences
-    const prefersDarkScheme = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    if (prefersDarkScheme) {
-      document.body.dataset.theme = "dark";
-      this.themeToggle.checked = true;
-    } else {
-      document.body.dataset.theme = "light";
-      this.themeToggle.checked = false;
-    }
-
-    // Show tutorial modal every session
-    // this.tutorialModal.classList.add("show");
+    this.initializeTheme();
+    this.initSideMenu();
 
     // Show tutorial modal once
     if (!localStorage.getItem("tutorialShown")) {
       this.tutorialModal.classList.add("show");
       localStorage.setItem("tutorialShown", "true");
     }
+
+    // Show tutorial modal every session
+    // this.tutorialModal.classList.add("show");
 
     // Define the table headers dynamically
     const tableHeaders = [
@@ -78,11 +89,6 @@ export class UIManager {
     this.playButton.addEventListener("click", () => {
       this.pauseButton.disabled = false;
       this.playButton.disabled = true;
-    });
-
-    this.themeToggle.addEventListener("change", () => {
-      document.body.dataset.theme = this.themeToggle.checked ? "dark" : "light";
-      console.log("Theme toggled to:", document.body.dataset.theme);
     });
 
     document.getElementById("closeTutorial").addEventListener("click", () => {
@@ -196,6 +202,74 @@ export class UIManager {
       console.error("Failed to play YEAHBUDDY.mp3:", error);
     });
   }
+
+  initSideMenu() {
+    // Sync theme toggle with current theme
+    const isDarkMode = document.body.dataset.theme === "dark";
+    this.sideMenu.querySelector("#menuThemeToggle").checked = isDarkMode;
+
+    // Theme toggle handler
+    this.sideMenu
+      .querySelector("#menuThemeToggle")
+      .addEventListener("change", (e) => {
+        document.body.dataset.theme = e.target.checked ? "dark" : "light";
+      });
+
+    // Close button handler
+    this.sideMenu
+      .querySelector(".menu-close-btn")
+      .addEventListener("click", () => {
+        this.toggleMenu();
+      });
+
+    // Info button handler
+    this.sideMenu.querySelector("#infoButton").addEventListener("click", () => {
+      this.toggleMenu();
+      this.infoModal.classList.add("show");
+    });
+
+    document.querySelector(".close-modal").addEventListener("click", () => {
+      this.infoModal.classList.remove("show");
+    });
+  }
+
+  toggleMenu() {
+    this.menuToggle.classList.toggle("open");
+    this.sideMenu.classList.toggle("open");
+    this.menuOverlay.classList.toggle("active");
+
+    // Toggle body scroll
+    document.body.style.overflow = this.sideMenu.classList.contains("open")
+      ? "hidden"
+      : "";
+
+    // Add/remove click outside listener
+    if (this.sideMenu.classList.contains("open")) {
+      document.addEventListener("click", this.handleClickOutside);
+    } else {
+      document.removeEventListener("click", this.handleClickOutside);
+    }
+  }
+
+  // Use system preferences for default theme
+  initializeTheme() {
+    const prefersDarkScheme = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    document.body.dataset.theme = prefersDarkScheme ? "dark" : "light";
+    return prefersDarkScheme;
+  }
+
+  // Close side menu by clicking outside
+  handleClickOutside = (e) => {
+    if (
+      !this.sideMenu.contains(e.target) &&
+      !this.menuToggle.contains(e.target) &&
+      this.sideMenu.classList.contains("open")
+    ) {
+      this.toggleMenu();
+    }
+  };
 
   reset() {
     this.currentCount = 0;

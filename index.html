@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Push-Up Counter</title>
+    <title>Aaron's Exercise Identifier</title>
     <link rel="stylesheet" href="styles.css" />
     <!-- MediaPipe Tasks Vision Scripts -->
     <script
@@ -33,15 +33,41 @@
     </div>
 
     <header class="header">
-      <h1>Push-Up Counter</h1>
+      <img
+        src="memoji-icon-color.png"
+        class="memoji-icon"
+        alt="Aaron's Memoji"
+      />
       <div id="counter" class="counter">Push-Ups: 0</div>
-      <div class="theme-toggle">
-        <label class="switch">
-          <input type="checkbox" id="themeToggle" />
-          <span class="slider"></span>
-        </label>
-        <span>Dark Mode</span>
-      </div>
+
+      <!-- Menu toggle -->
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+        <svg
+          class="hamburger-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M20 7L4 7"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          ></path>
+          <path
+            d="M20 12L4 12"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          ></path>
+          <path
+            d="M20 17L4 17"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          ></path>
+        </svg>
+      </button>
     </header>
 
     <div class="container">
@@ -66,6 +92,87 @@
         </table>
       </div>
     </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal">
+      <div class="modal-content">
+        <h2>Detection Logic</h2>
+        <p>Explanation of how the exercise detection works...</p>
+        <button class="btn close-modal">Close</button>
+      </div>
+    </div>
     <script type="module" src="script.js"></script>
+
+    <!-- Side Menu -->
+    <div id="sideMenu" class="side-menu">
+      <div class="menu-header">
+        <button class="menu-close-btn" aria-label="Close menu">
+          <svg
+            class="close-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M19.207 6.207a1 1 0 0 0-1.414-1.414L12 10.586 6.207 4.793a1 1 0 0 0-1.414 1.414L10.586 12l-5.793 5.793a1 1 0 1 0 1.414 1.414L12 13.414l5.793 5.793a1 1 0 0 0 1.414-1.414L13.414 12l5.793-5.793z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <div class="menu-content">
+        <div class="menu-item">
+          <span>Dark Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="menuThemeToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="menu-item">
+          <span>Mute Sounds</span>
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="menu-item">
+          <label for="activityType">Activity Type</label>
+          <select id="activityType">
+            <option value="pushUp">Push-Up</option>
+            <option value="squat">Squat</option>
+          </select>
+        </div>
+
+        <div class="menu-item">
+          <label for="audioTheme">Audio Theme</label>
+          <select id="audioTheme">
+            <option value="default">Default</option>
+            <option value="nature">Nature</option>
+            <option value="electronic">Electronic</option>
+          </select>
+        </div>
+
+        <button id="infoButton" class="btn" style="margin-top: 20px">
+          About Detection Logic
+        </button>
+      </div>
+
+      <div class="menu-footer">
+        <a
+          href="https://aarondudley.vercel.app"
+          class="portfolio-link"
+          target="_blank"
+        >
+          Visit My Portfolio
+        </a>
+      </div>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div id="menuOverlay" class="menu-overlay"></div>
   </body>
 </html>
