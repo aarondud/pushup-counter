@@ -10,8 +10,13 @@ class PushUpApp {
     this.uiManager = new UIManager();
     this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
     this.exerciseDetector = new PushUpDetector(
-      () => this.uiManager.triggerPulseAnimation(),
-      (message, type) => this.uiManager.updateFeedback(message, type)
+      //() => this.uiManager.triggerPulseAnimation(),
+      (exerciseData) => {
+        this.uiManager.triggerPulseAnimation();
+        this.uiManager.updateStatsTable(exerciseData);
+      },
+      (message, type) => this.uiManager.updateFeedback(message, type),
+      (motion) => this.uiManager.updateMotionIndicator(motion)
     );
     this.poseProcessor = new PoseProcessor(this.videoCanvas, (results) =>
       this.handlePoseResults(results)
@@ -27,7 +32,6 @@ class PushUpApp {
       this.uiManager.updateFeedback(error.message, "error");
     }
 
-    // Set up event listeners for pause/play
     document.getElementById("pause").addEventListener("click", () => {
       this.poseProcessor.pause();
     });
@@ -43,28 +47,12 @@ class PushUpApp {
 
   handlePoseResults(results) {
     const landmarks = results.landmarks[0];
-    this.drawingUtils.drawLandmarks(landmarks);
+    this.drawingUtils.drawLandmarks(landmarks, "pushUp");
 
     const metrics = PoseCalculations.calculateMetrics(landmarks);
-    const exerciseData = this.exerciseDetector.processPose(landmarks, metrics);
+    this.exerciseDetector.processPose(landmarks, metrics);
 
-    this.uiManager.updateDataPoints({
-      leftElbowAngle: Math.round(metrics.leftElbowAngle),
-      rightElbowAngle: Math.round(metrics.rightElbowAngle),
-      leftWristDepth: metrics.leftWristDepth.toFixed(2),
-      rightWristDepth: metrics.rightWristDepth.toFixed(2),
-      shoulderHipAngle: metrics.shoulderHipAngle
-        ? Math.round(metrics.shoulderHipAngle)
-        : "N/A",
-      backStraightness: metrics.backStraightness
-        ? Math.round(metrics.backStraightness)
-        : "N/A",
-    });
-
-    if (exerciseData) {
-      this.uiManager.updateCounter(exerciseData.count);
-      this.uiManager.updateStatsTable(exerciseData);
-    }
+    this.uiManager.updateDataPoints(metrics);
   }
 }
 

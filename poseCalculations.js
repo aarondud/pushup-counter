@@ -1,23 +1,13 @@
 // Module contains utility functions for calculating angles, wrist depths, and other metrics.
 
+import { isLandmarkInView, calcAvg } from "./poseUtils.js";
+
 export const PoseCalculations = {
   calculateAngle(p1, p2, p3) {
     const radians =
       Math.atan2(p3.y - p2.y, p3.x - p2.x) -
       Math.atan2(p1.y - p2.y, p1.x - p2.x);
     return Math.abs((radians * 180) / Math.PI);
-  },
-
-  isLandmarkInView(landmark) {
-    return (
-      landmark &&
-      typeof landmark.x === "number" &&
-      typeof landmark.y === "number" &&
-      landmark.x >= 0 &&
-      landmark.x <= 1 &&
-      landmark.y >= 0 &&
-      landmark.y <= 1
-    );
   },
 
   calculateMetrics(landmarks) {
@@ -29,10 +19,14 @@ export const PoseCalculations = {
     const rightShoulder = landmarks[12];
     const rightElbow = landmarks[14];
     const rightWrist = landmarks[16];
-    // Other landmarks for additional metrics
-    const hip = landmarks[23];
-    const knee = landmarks[25];
-    const ankle = landmarks[27];
+    // Left leg landmarks
+    const leftHip = landmarks[23];
+    const leftKnee = landmarks[25];
+    const leftAnkle = landmarks[27];
+    // Right leg landmarks
+    const rightHip = landmarks[23];
+    const rightKnee = landmarks[25];
+    const rightAnkle = landmarks[27];
 
     const metrics = {
       leftElbowAngle: this.calculateAngle(leftShoulder, leftElbow, leftWrist),
@@ -41,12 +35,45 @@ export const PoseCalculations = {
         rightElbow,
         rightWrist
       ),
+      leftShoulderAngle: this.calculateAngle(leftHip, leftShoulder, leftElbow),
+      rightShoulderAngle: this.calculateAngle(
+        rightHip,
+        rightShoulder,
+        rightElbow
+      ),
+      leftHipAngle:
+        leftHip && leftKnee
+          ? this.calculateAngle(leftShoulder, leftHip, leftKnee)
+          : null,
+      rightHipAngle:
+        rightHip && rightKnee
+          ? this.calculateAngle(rightShoulder, rightHip, rightKnee)
+          : null,
+      leftKneeAngle:
+        leftHip && leftKnee
+          ? this.calculateAngle(leftHip, leftKnee, leftAnkle)
+          : null,
+      rightKneeAngle:
+        rightHip && rightKnee
+          ? this.calculateAngle(rightHip, rightKnee, rightAnkle)
+          : null,
       leftWristDepth: leftWrist.y - leftElbow.y,
       rightWristDepth: rightWrist.y - rightElbow.y,
-      shoulderHipAngle:
-        hip && knee ? this.calculateAngle(leftShoulder, hip, knee) : null,
-      backStraightness:
-        hip && ankle ? this.calculateAngle(leftShoulder, hip, ankle) : null,
+
+      leftShoulderDepth: leftShoulder.y - leftHip.y,
+      rightShoulderDepth: rightShoulder.y - rightHip.y,
+
+      leftHipDepth: leftHip.y - leftKnee.y,
+      rightHipDepth: rightHip.y - rightKnee.y,
+
+      leftBackStraightness:
+        leftHip && leftKnee
+          ? this.calculateAngle(leftShoulder, leftHip, leftKnee) // knee instead of ankle allows users to do knee pushups
+          : null,
+      rightBackStraightness:
+        rightHip && rightKnee
+          ? this.calculateAngle(rightShoulder, rightHip, rightKnee) // knee intead of ankle allows users to do knee pushups
+          : null,
       upperBodyInView: [
         leftShoulder,
         leftElbow,
@@ -54,13 +81,42 @@ export const PoseCalculations = {
         rightShoulder,
         rightElbow,
         rightWrist,
-      ].every(this.isLandmarkInView),
+      ].every(isLandmarkInView),
+      fullBodyInView: [
+        leftShoulder,
+        leftElbow,
+        leftWrist,
+        rightShoulder,
+        rightElbow,
+        rightWrist,
+        leftHip,
+        leftKnee,
+        leftAnkle,
+        rightHip,
+        rightKnee,
+        rightAnkle,
+      ].every(isLandmarkInView),
     };
-
     return {
       ...metrics,
-      avgElbowAngle: (metrics.leftElbowAngle + metrics.rightElbowAngle) / 2,
-      avgWristDepth: (metrics.leftWristDepth + metrics.rightWristDepth) / 2,
+      avgElbowAngle: calcAvg(metrics.leftElbowAngle, metrics.rightElbowAngle),
+      avgHipAngle: calcAvg(metrics.leftHipAngle, metrics.rightHipAngle),
+      avgKneeAngle: calcAvg(metrics.leftKneeAngle, metrics.rightKneeAngle),
+      avgShoulderAngle: calcAvg(
+        metrics.leftShoulderAngle,
+        metrics.rightShoulderAngle
+      ),
+      avgWristDepth: calcAvg(metrics.leftWristDepth, metrics.rightWristDepth),
+
+      avgHeightDepth: Math.abs(
+        calcAvg(metrics.leftShoulderDepth, metrics.rightShoulderDepth) -
+          calcAvg(metrics.leftHipDepth, metrics.rightHipDepth)
+      ),
+
+      avgBackStraightness: calcAvg(
+        metrics.leftBackStraightness,
+        metrics.rightBackStraightness
+      ),
     };
   },
 };

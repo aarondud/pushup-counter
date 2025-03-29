@@ -20,6 +20,18 @@
     ></script>
   </head>
   <body>
+    <div id="tutorialModal" class="modal">
+      <div class="modal-content">
+        <h2>🎉 Get Ready to Crush It! 💪</h2>
+        <p>
+          Position your upper body (shoulders, arms, and hips) in the camera
+          view 📸, keep your back straight as a board 📏, and start pumping out
+          those push-ups! 🚀
+        </p>
+        <button id="closeTutorial" class="btn">Let’s Go! 🔥</button>
+      </div>
+    </div>
+
     <header class="header">
       <h1>Push-Up Counter</h1>
       <div id="counter" class="counter">Push-Ups: 0</div>
@@ -35,6 +47,7 @@
     <div class="container">
       <div class="video-container">
         <canvas id="videoCanvas"></canvas>
+
         <div id="feedback" class="feedback"></div>
       </div>
 
@@ -49,14 +62,6 @@
       <div class="stats">
         <h2>Push-Up Stats</h2>
         <table id="pushUpStats">
-          <thead>
-            <tr>
-              <th>Push-Up #</th>
-              <th>Avg Elbow Depth</th>
-              <th>Back Straightness (°)</th>
-              <th>Shoulder-Hip Angle (°)</th>
-            </tr>
-          </thead>
           <tbody id="pushUpStatsBody"></tbody>
         </table>
       </div>

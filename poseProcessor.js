@@ -9,7 +9,7 @@ export class PoseProcessor {
   constructor(videoCanvas, onPoseDetected) {
     this.videoCanvas = videoCanvas;
     this.ctx = videoCanvas.getContext("2d");
-    this.onPoseDetected = onPoseDetected; // Callback to handle detected poses
+    this.onPoseDetected = onPoseDetected;
     this.poseLandmarker = null;
     this.videoStream = null;
     this.lastVideoTime = -1;
@@ -84,7 +84,7 @@ export class PoseProcessor {
           currentTime,
           (results) => {
             if (results.landmarks && results.landmarks.length > 0) {
-              this.onPoseDetected(results); // Call the callback with detected poses
+              this.onPoseDetected(results);
             }
           }
         );
