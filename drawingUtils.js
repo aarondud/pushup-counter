@@ -8,43 +8,46 @@ export class CanvasDrawingUtils {
     this.videoCanvas = videoCanvas;
     this.ctx = videoCanvas.getContext("2d");
     this.drawingUtils = new DrawingUtils(this.ctx);
-    this.exerciseLandmarks = {
-      pushUp: {
-        landmarks: [11, 12, 13, 14, 15, 16, 23, 24],
-        connections: [
-          [11, 12],
-          [11, 13],
-          [12, 14],
-          [13, 15],
-          [14, 16],
-          [11, 23],
-          [12, 24],
-          [23, 24],
-          [23, 25],
-          [24, 26],
-          [25, 27],
-          [26, 28],
-        ],
-      },
-    };
     this.alwaysDrawLandmarks = [
       0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28,
     ];
+    this.alwaysDrawConnections = [
+      [11, 12],
+      [11, 13],
+      [12, 14],
+      [13, 15],
+      [14, 16],
+      [11, 23],
+      [12, 24],
+      [23, 24],
+      [23, 25],
+      [24, 26],
+      [25, 27],
+      [26, 28],
+    ]; // excludes neck
   }
 
-  drawLandmarks(landmarks, exerciseType = "pushUp") {
-    const config = this.exerciseLandmarks[exerciseType];
-    if (!config) {
-      console.error(
-        `No drawing configuration found for exercise: ${exerciseType}`
-      );
-      return;
-    }
-
+  drawLandmarks(landmarks) {
+    // Check landmarks are in view
     if (!landmarks || !Array.isArray(landmarks)) {
       console.log("No landmarks to draw");
       return;
     }
+    // Normalize landmark coordinates to canvas dimensions
+    const normalizedLandmarks = landmarks.map((landmark) => {
+      if (!isLandmarkInView(landmark)) {
+        return null;
+      }
+      return {
+        x: landmark.x * this.videoCanvas.width,
+        y: landmark.y * this.videoCanvas.height,
+      };
+    });
+
+    // Create a filtered array of landmarks to draw
+    const landmarksToDraw = this.alwaysDrawLandmarks
+      .map((index) => normalizedLandmarks[index])
+      .filter((landmark) => landmark !== null);
 
     // console.log("landmarks length:", landmarks.length);
     // console.log(
@@ -55,26 +58,7 @@ export class CanvasDrawingUtils {
     //     isValid: landmarks[index] ? isLandmarkInView(landmarks[index]) : false,
     //   }))
     // );
-
-    // Normalize landmark coordinates to canvas dimensions
-    const normalizedLandmarks = landmarks.map((landmark) => {
-      if (!isLandmarkInView(landmark)) {
-        return null;
-      }
-      return {
-        x: landmark.x * this.videoCanvas.width,
-        y: landmark.y * this.videoCanvas.height,
-        // Remove visibility property
-      };
-    });
-
     // console.log("normalizedLandmarks:", normalizedLandmarks);
-
-    // Create a filtered array of landmarks to draw
-    const landmarksToDraw = this.alwaysDrawLandmarks
-      .map((index) => normalizedLandmarks[index])
-      .filter((landmark) => landmark !== null);
-
     // console.log("landmarksToDraw before drawing:", landmarksToDraw);
 
     // Drawing style constants
@@ -93,7 +77,8 @@ export class CanvasDrawingUtils {
     // Draw connections for the exercise
     this.ctx.strokeStyle = DRAW_COLOUR;
     this.ctx.lineWidth = STROKE_WIDTH;
-    for (const connection of config.connections) {
+    // for (const connection of config.connections) {
+    for (const connection of this.alwaysDrawConnections) {
       const start = normalizedLandmarks[connection[0]];
       const end = normalizedLandmarks[connection[1]];
       if (start && end) {
