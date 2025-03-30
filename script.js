@@ -1,36 +1,43 @@
 import { PoseProcessor } from "./poseProcessor.js";
 import { PoseCalculations } from "./poseCalculations.js";
 import { CanvasDrawingUtils } from "./drawingUtils.js";
-import { PushUpDetector } from "./pushUpDetector.js";
+import { PushUpDetector } from "./exerciseDetectors/pushUpDetector.js";
 import { UIManager } from "./uiManager.js";
+import { ExerciseManager } from "./exerciseManager.js";
 
-class PushUpApp {
+class ExerciseApp {
   constructor() {
     this.videoCanvas = document.getElementById("videoCanvas");
-    this.uiManager = new UIManager();
     this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
-    this.exerciseDetector = new PushUpDetector(
-      (exerciseData) => {
-        this.uiManager.triggerPulseAnimation();
-        this.uiManager.updateStatsTable(exerciseData);
-      },
-      (message, type) => this.uiManager.updateFeedback(message, type),
-      (motion) => this.uiManager.updateMotionIndicator(motion)
+    this.exerciseManager = new ExerciseManager();
+    this.uiManager = new UIManager(this.exerciseManager);
+
+    this.initExercise();
+    this.initPoseProcessor();
+    this.setUpEventListeners();
+  }
+
+  async initExercise() {
+    const config = this.exerciseManager.getCurrentExercise();
+    this.exerciseDetector = new config.detector(
+      (data) => this.handleExerciseDetected(data),
+      (msg, type) => this.uiManager.updateFeedback(msg, type),
+      config
     );
+  }
+
+  async initPoseProcessor() {
     this.poseProcessor = new PoseProcessor(this.videoCanvas, (results) =>
       this.handlePoseResults(results)
     );
-
-    this.init();
-  }
-
-  async init() {
     try {
       await this.poseProcessor.initialize();
     } catch (error) {
       this.uiManager.updateFeedback(error.message, "error");
     }
+  }
 
+  async setUpEventListeners() {
     document.getElementById("pause").addEventListener("click", () => {
       this.poseProcessor.pause();
     });
@@ -42,11 +49,40 @@ class PushUpApp {
     document.getElementById("reset").addEventListener("click", () => {
       this.exerciseDetector.reset();
     });
+
+    document.addEventListener("exerciseChange", (e) =>
+      this.handleExerciseChange(e.detail.exerciseType)
+    );
+  }
+
+  handleExerciseDetected(data) {
+    this.uiManager.triggerPulseAnimation();
+    this.uiManager.updateActivityLog({
+      ...data,
+      activity: this.exerciseManager.getCurrentExercise().name,
+    });
+  }
+
+  async handleExerciseChange(exerciseType) {
+    if (!this.exerciseManager.setExercise(exerciseType)) return;
+
+    // Update UI immediately (synchronously)
+    this.uiManager.updateUIForExercise();
+
+    // Update side menu selector
+    const activityTypeSelect = document.getElementById("activityType");
+    if (activityTypeSelect) activityTypeSelect.value = exerciseType;
+
+    // Then handle async operations
+    await this.initExercise();
+
+    // Visual feedback (deliberately after async operations)
+    this.uiManager.triggerExerciseChangeFeedback();
   }
 
   handlePoseResults(results) {
     const landmarks = results.landmarks[0];
-    this.drawingUtils.drawLandmarks(landmarks, "pushUp");
+    this.drawingUtils.drawLandmarks(landmarks);
 
     const metrics = PoseCalculations.calculateMetrics(landmarks);
     this.exerciseDetector.processPose(landmarks, metrics);
@@ -54,4 +90,4 @@ class PushUpApp {
   }
 }
 
-new PushUpApp();
+new ExerciseApp();

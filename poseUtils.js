@@ -60,3 +60,15 @@ export function avg(array) {
 export function calcAvg(var1, var2) {
   return (var1 + var2) / 2;
 }
+
+export function isWristDepthInRange({ avgWristDepth }, { wristDepthMax }) {
+  return avgWristDepth <= wristDepthMax;
+}
+
+export function isBackStraight({ avgHipAngle }, { backMin, backMax }) {
+  return avgHipAngle >= backMin && avgHipAngle <= backMax;
+}
+
+export function isBackHeightInRange({ avgHeightDepth }, { heightDiffMax }) {
+  return avgHeightDepth <= heightDiffMax;
+}

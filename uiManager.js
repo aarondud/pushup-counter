@@ -1,7 +1,7 @@
 // Module handles all DOM updates and user interactions.
 
 export class UIManager {
-  constructor() {
+  constructor(exerciseManager) {
     this.feedback = document.getElementById("feedback");
     this.counter = document.getElementById("counter");
 
@@ -33,12 +33,15 @@ export class UIManager {
 
     // Initialise
     this.currentCount = 0;
-    this.currentMotion = "";
     this.lastDataPoints = null;
 
+    this.exerciseManager = exerciseManager;
     this.setupEventListeners();
     this.initializeTheme();
     this.initSideMenu();
+
+    this.initDropdown("counterBtn", "exerciseDropdown");
+    this.initDropdown("sideMenuExerciseBtn", "sideMenuExerciseDropdown");
 
     // Show tutorial modal once
     if (!localStorage.getItem("tutorialShown")) {
@@ -101,13 +104,6 @@ export class UIManager {
     this.feedback.className = `feedback ${type} show`;
   }
 
-  updateMotionIndicator(motion) {
-    this.currentMotion = motion;
-    if (this.lastDataPoints) {
-      this.updateDataPoints(this.lastDataPoints);
-    }
-  }
-
   updateCounter(count) {
     this.currentCount = count;
     this.counter.textContent = `Push-Ups: ${count}`;
@@ -155,7 +151,7 @@ export class UIManager {
       rightKneeAngle: "🦵 Right Knee",
     };
 
-    // Generate HTML
+    // Generate HTML for live data points
     this.dataPoints.innerHTML = `
       <div class="data-points-grid">
         ${Object.entries(this.lastDataPoints)
@@ -172,20 +168,19 @@ export class UIManager {
     `;
   }
 
-  updateStatsTable({ count, activity, upDuration, downDuration }) {
-    console.log("upDuration", upDuration, "downDuration", downDuration);
-    const row = document.createElement("tr");
-
-    activity = "Push-up";
-    let ttlDuration = this.formatMetric(
+  updateActivityLog({ count, upDuration, downDuration }) {
+    const currentActivity = this.exerciseManager.getCurrentExercise();
+    // console.log("upDuration", upDuration, "downDuration", downDuration);
+    const ttlDuration = this.formatMetric(
       parseFloat(downDuration) + parseFloat(upDuration),
       "",
       2
     );
 
+    const row = document.createElement("tr");
     row.innerHTML = `
         <td>${count}</td>
-        <td>${activity}</td>
+        <td>${currentActivity}</td>
         <td>${downDuration}</td>
         <td>${upDuration}</td>
         <td>${ttlDuration}</td>
@@ -197,10 +192,13 @@ export class UIManager {
     document.body.classList.remove("pulse");
     void document.body.offsetWidth;
     document.body.classList.add("pulse");
-    // Play sound when a push-up is counted
-    new Audio("YEAHBUDDY.mp3").play().catch((error) => {
-      console.error("Failed to play YEAHBUDDY.mp3:", error);
-    });
+    this.playExerciseSound();
+  }
+
+  triggerExerciseChangeFeedback() {
+    const counterBtn = document.getElementById("counterBtn");
+    counterBtn.classList.add("pulse");
+    setTimeout(() => counterBtn.classList.remove("pulse"), 300);
   }
 
   initSideMenu() {
@@ -260,6 +258,26 @@ export class UIManager {
     return prefersDarkScheme;
   }
 
+  initSoundControls() {
+    // Mute toggle
+    document.getElementById("soundToggle").addEventListener("change", (e) => {
+      this.exerciseManager.isMuted = e.target.checked;
+    });
+
+    // Sound selector dropdown
+    const soundSelector = document.getElementById("audioTheme");
+    soundSelector.addEventListener("change", (e) => {
+      this.exerciseManager.setCurrentSound(e.target.value);
+    });
+  }
+
+  playExerciseSound() {
+    if (this.exerciseManager.isMuted) return;
+
+    const soundPath = this.exerciseManager.getCurrentExercise().currentSound;
+    new Audio(soundPath).play().catch((e) => console.warn("Sound error:", e));
+  }
+
   // Close side menu by clicking outside
   handleClickOutside = (e) => {
     if (
@@ -270,6 +288,104 @@ export class UIManager {
       this.toggleMenu();
     }
   };
+
+  updateUIForExercise(exercise = this.exerciseManager.getCurrentExercise()) {
+    // Update both dropdown buttons
+    ["counterBtn", "sideMenuExerciseBtn"].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        const nameEl =
+          btn.querySelector(".exercise-name") ||
+          btn.querySelector("#exerciseName");
+        const countEl =
+          btn.querySelector(".exercise-count") ||
+          btn.querySelector("#exerciseCount");
+        if (nameEl) nameEl.textContent = exercise.name;
+        if (countEl) countEl.textContent = exercise.counts || 0;
+      }
+    });
+
+    // Update CSS variable
+    document.documentElement.style.setProperty(
+      "--exercise-primary",
+      exercise.color
+    );
+
+    // Update counter text
+    if (this.counter) {
+      this.counter.textContent = `${exercise.name}: ${exercise.counts || 0}`;
+    }
+
+    // Update body data attribute for theme-specific styling
+    document.body.dataset.exercise = this.exerciseManager.currentExercise;
+  }
+
+  initDropdown(buttonId, menuId) {
+    const btn = document.getElementById(buttonId);
+    const menu = document.getElementById(menuId);
+
+    if (!btn || !menu) return;
+
+    // Define handlers as regular functions
+    const handleButtonClick = (e) => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      if (menu.classList.contains("show")) {
+        menu.classList.add("closing");
+        menu.addEventListener(
+          "animationend",
+          () => {
+            menu.classList.remove("show", "closing");
+          },
+          { once: true }
+        );
+      } else {
+        menu.classList.add("show");
+      }
+    };
+
+    const handleOutsideClick = () => {
+      if (menu.classList.contains("show")) {
+        menu.classList.add("closing");
+        menu.addEventListener(
+          "animationend",
+          () => {
+            menu.classList.remove("show", "closing");
+          },
+          { once: true }
+        );
+      }
+    };
+
+    const handleOptionClick = (e) => {
+      e.stopPropagation();
+      const exerciseType = e.target.dataset.exercise;
+      // Dispatch the correct event name that ExerciseApp listens for
+      document.dispatchEvent(
+        new CustomEvent("exerciseChange", {
+          detail: { exerciseType },
+        })
+      );
+      handleOutsideClick();
+    };
+
+    // Set up event listeners
+    btn.addEventListener("click", handleButtonClick);
+    document.addEventListener("click", handleOutsideClick);
+    menu.querySelectorAll("button").forEach((option) => {
+      option.addEventListener("click", handleOptionClick);
+    });
+
+    // Store references for cleanup if needed
+    this._dropdownHandlers = this._dropdownHandlers || [];
+    this._dropdownHandlers.push({
+      btn,
+      menu,
+      handleButtonClick,
+      handleOutsideClick,
+      handleOptionClick,
+    });
+  }
 
   reset() {
     this.currentCount = 0;

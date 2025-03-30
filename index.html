@@ -33,12 +33,28 @@
     </div>
 
     <header class="header">
+      <!-- Memoji Icon -->
       <img
-        src="memoji-icon-color.png"
+        src="./media/memoji-icon-color.png"
         class="memoji-icon"
         alt="Aaron's Memoji"
       />
-      <div id="counter" class="counter">Push-Ups: 0</div>
+      <!-- Counter -->
+      <!-- <div id="counter" class="counter">Push-Ups: 0</div> -->
+
+      <div class="counter-dropdown">
+        <button class="counter-btn" id="counterBtn">
+          <span id="exerciseName">Push-Ups</span>:
+          <span id="exerciseCount">0</span>
+          <span class="dropdown-arrow">▼</span>
+        </button>
+
+        <div class="dropdown-content" id="exerciseDropdown">
+          <button data-exercise="pushUp">💪 Push-Ups</button>
+          <button data-exercise="squat">🏋️‍♀️ Squats</button>
+          <button data-exercise="punch">🥊 Punches</button>
+        </div>
+      </div>
 
       <!-- Menu toggle -->
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
@@ -141,23 +157,52 @@
 
         <div class="menu-item">
           <label for="activityType">Activity Type</label>
-          <select id="activityType">
-            <option value="pushUp">Push-Up</option>
-            <option value="squat">Squat</option>
-          </select>
+          <div class="dropdown-container">
+            <button id="sideMenuExerciseBtn" class="dropdown-btn">
+              <span class="exercise-name">Push-Ups</span>
+              <span class="dropdown-arrow-side">▼</span>
+            </button>
+            <div id="sideMenuExerciseDropdown" class="dropdown-options">
+              <button data-exercise="pushUp">Push-Ups</button>
+              <button data-exercise="squat">Squats</button>
+              <button data-exercise="punch">Punches</button>
+            </div>
+          </div>
         </div>
 
-        <div class="menu-item">
-          <label for="audioTheme">Audio Theme</label>
+        <!-- <div class="menu-item">
+          <label for="landmarkColour">🔘 LandmarkColour</label>
+          <select id="landmarkColour"> -->
+        <!-- TO DO add a colour selector element here -->
+        <!-- </select>
+        </div> -->
+
+        <!-- <div class="menu-item">
+          <label for="connectionColour">⎯ Connection Colour</label>
+          <select id="connectionColour"> -->
+        <!-- TO DO add a colour selector element here -->
+        <!-- </select>
+        </div> -->
+
+        <!-- <div class="menu-item"> -->
+        <!-- add a slider here that can adjust the radius size of landmarks -->
+        <!-- </div> -->
+
+        <!-- <div class="menu-item"> -->
+        <!-- add a default theme button here that reverts all styling settings to default -->
+        <!-- </div> -->
+
+        <!-- <div class="menu-item">
+          <label for="audioTheme">🎧 Audio Theme</label>
           <select id="audioTheme">
             <option value="default">Default</option>
             <option value="nature">Nature</option>
             <option value="electronic">Electronic</option>
           </select>
-        </div>
+        </div> -->
 
         <button id="infoButton" class="btn" style="margin-top: 20px">
-          About Detection Logic
+          ℹ️ About Detection Logic
         </button>
       </div>
 
