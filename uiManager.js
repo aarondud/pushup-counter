@@ -34,6 +34,7 @@ export class UIManager {
     this.lastDataPoints = null;
 
     this.exerciseManager = exerciseManager;
+    this.updateUIForExercise();
     this.drawingUtils = null;
     this.setupEventListeners();
     this.initializeTheme();
@@ -252,9 +253,13 @@ export class UIManager {
     const defaultToggle = document.getElementById("defaultToggle");
     const randomizeBtn = document.getElementById("randomizeStyle");
 
-    // Set slider ranges from CanvasDrawingUtils
+    // Set initial values andranges from CanvasDrawingUtils
+    const defaults = this.drawingUtils.defaultStyles;
     const radiusRange = this.drawingUtils.getLandmarkRadiusRange();
     const widthRange = this.drawingUtils.getConnectionWidthRange();
+
+    landmarkColor.value = defaults.landmarkColor;
+    connectionColor.value = defaults.connectionColor;
     landmarkRadius.min = radiusRange.min;
     landmarkRadius.max = radiusRange.max;
     landmarkRadius.value = radiusRange.default;
@@ -300,7 +305,7 @@ export class UIManager {
       const diceIcon = randomizeBtn.querySelector(".dice-icon");
       diceIcon.style.animation = "";
       diceIcon.offsetWidth;
-      diceIcon.style.animation = "memojiWave 0.5s ease-in-out";
+      diceIcon.style.animation = "shake 0.5s ease-in-out";
 
       const randomColor = () =>
         `#${Math.floor(Math.random() * 16777215)
@@ -436,6 +441,17 @@ export class UIManager {
     const menu = document.getElementById(menuId);
 
     if (!btn || !menu) return;
+
+    // Dynamically populate dropdown options
+    menu.innerHTML = ""; // Clear existing static content
+    Object.entries(this.exerciseManager.exercises).forEach(
+      ([key, exercise]) => {
+        const button = document.createElement("button");
+        button.dataset.exercise = key;
+        button.textContent = `${exercise.icon} ${exercise.name}`;
+        menu.appendChild(button);
+      }
+    );
 
     // Define handlers as regular functions
     const handleButtonClick = (e) => {

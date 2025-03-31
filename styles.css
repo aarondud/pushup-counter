@@ -197,7 +197,7 @@ body {
     position: absolute;
     right: 0;
     left: auto;
-    width: 120px;
+    width: 140px;
     display: none;
     background: var(--card-bg);
     border: 1px solid var(--exercise-primary);
