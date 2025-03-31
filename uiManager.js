@@ -23,6 +23,7 @@ export class UIManager {
     this.menuToggle = document.getElementById("menuToggle");
     this.sideMenu = document.getElementById("sideMenu");
     this.menuOverlay = document.getElementById("menuOverlay");
+    this.lastCustomStyles = null;
 
     // Add elements to DOM
     document.body.appendChild(this.sideMenu);
@@ -33,6 +34,7 @@ export class UIManager {
     this.lastDataPoints = null;
 
     this.exerciseManager = exerciseManager;
+    this.drawingUtils = null;
     this.setupEventListeners();
     this.initializeTheme();
     this.initDropdown("counterBtn", "exerciseDropdown");
@@ -99,9 +101,11 @@ export class UIManager {
     });
 
     this.menuToggle.addEventListener("click", () => this.toggleMenu());
-    document.querySelector(".memoji-icon").addEventListener("click", () => {
-      window.open("https://aarondudley.vercel.app", "_blank");
-    });
+    document
+      .querySelector(".social-icon.memoji")
+      .addEventListener("click", () => {
+        window.open("https://aarondudley.vercel.app", "_blank");
+      });
   }
 
   updateFeedback(message, type) {
@@ -238,6 +242,105 @@ export class UIManager {
 
     // Dropdown handlers
     this.initDropdown("sideMenuExerciseBtn", "sideMenuExerciseDropdown");
+  }
+
+  initStylingControls() {
+    const landmarkColor = document.getElementById("landmarkColor");
+    const connectionColor = document.getElementById("connectionColor");
+    const landmarkRadius = document.getElementById("landmarkRadius");
+    const connectionWidth = document.getElementById("connectionWidth");
+    const defaultToggle = document.getElementById("defaultToggle");
+    const randomizeBtn = document.getElementById("randomizeStyle");
+
+    // Set slider ranges from CanvasDrawingUtils
+    const radiusRange = this.drawingUtils.getLandmarkRadiusRange();
+    const widthRange = this.drawingUtils.getConnectionWidthRange();
+    landmarkRadius.min = radiusRange.min;
+    landmarkRadius.max = radiusRange.max;
+    landmarkRadius.value = radiusRange.default;
+    connectionWidth.min = widthRange.min;
+    connectionWidth.max = widthRange.max;
+    connectionWidth.value = widthRange.default;
+
+    // Update styles on change
+    const toggleCustomMode = () => {
+      defaultToggle.checked = false;
+      this.updateStyles();
+    };
+    landmarkColor.addEventListener("change", toggleCustomMode);
+    connectionColor.addEventListener("change", toggleCustomMode);
+    landmarkRadius.addEventListener("input", toggleCustomMode);
+    connectionWidth.addEventListener("input", toggleCustomMode);
+
+    // Toggle default/custom
+    defaultToggle.addEventListener("change", () => {
+      if (defaultToggle.checked) {
+        this.lastCustomStyles = {
+          landmarkColor: landmarkColor.value,
+          connectionColor: connectionColor.value,
+          landmarkRadius: parseInt(landmarkRadius.value),
+          connectionWidth: parseInt(connectionWidth.value),
+        };
+        const defaults = this.drawingUtils.defaultStyles;
+        landmarkColor.value = defaults.landmarkColor;
+        connectionColor.value = defaults.connectionColor;
+        landmarkRadius.value = defaults.landmarkRadius;
+        connectionWidth.value = defaults.connectionWidth;
+      } else if (this.lastCustomStyles) {
+        landmarkColor.value = this.lastCustomStyles.landmarkColor;
+        connectionColor.value = this.lastCustomStyles.connectionColor;
+        landmarkRadius.value = this.lastCustomStyles.landmarkRadius;
+        connectionWidth.value = this.lastCustomStyles.connectionWidth;
+      }
+      this.updateStyles();
+    });
+
+    // Randomize
+    randomizeBtn.addEventListener("click", () => {
+      const diceIcon = randomizeBtn.querySelector(".dice-icon");
+      diceIcon.style.animation = "";
+      diceIcon.offsetWidth;
+      diceIcon.style.animation = "memojiWave 0.5s ease-in-out";
+
+      const randomColor = () =>
+        `#${Math.floor(Math.random() * 16777215)
+          .toString(16)
+          .padStart(6, "0")}`;
+      landmarkColor.value = randomColor();
+      connectionColor.value = randomColor();
+      landmarkRadius.value =
+        Math.floor(Math.random() * (radiusRange.max - radiusRange.min + 1)) +
+        radiusRange.min;
+      connectionWidth.value =
+        Math.floor(Math.random() * (widthRange.max - widthRange.min + 1)) +
+        widthRange.min;
+      defaultToggle.checked = false;
+      this.updateStyles();
+    });
+  }
+
+  updateStyles() {
+    const landmarkColor = document.getElementById("landmarkColor").value;
+    const connectionColor = document.getElementById("connectionColor").value;
+    const landmarkRadius = parseInt(
+      document.getElementById("landmarkRadius").value
+    );
+    const connectionWidth = parseInt(
+      document.getElementById("connectionWidth").value
+    );
+    const useDefault = document.getElementById("defaultToggle").checked;
+
+    if (!useDefault) {
+      document.getElementById("defaultToggle").checked = false; // Switch to custom on change
+    }
+
+    this.drawingUtils.setStyles({
+      landmarkColor,
+      connectionColor,
+      landmarkRadius,
+      connectionWidth,
+      useDefault,
+    });
   }
 
   toggleMenu() {
@@ -393,6 +496,11 @@ export class UIManager {
       handleOutsideClick,
       handleOptionClick,
     });
+  }
+
+  setDrawingUtils(drawingUtils) {
+    this.drawingUtils = drawingUtils;
+    this.initStylingControls();
   }
 
   reset() {

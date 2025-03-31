@@ -25,14 +25,79 @@ export class CanvasDrawingUtils {
       [25, 27],
       [26, 28],
     ]; // excludes neck
+    this.defaultStyles = {
+      landmarkColor: "#FFFFFF",
+      connectionColor: "#FFFFFF",
+      landmarkRadius: 4,
+      connectionWidth: 4,
+    };
+    this.LANDMARK_RADIUS_RANGE = {
+      min: 2,
+      max: 50,
+      default: this.defaultStyles.landmarkRadius,
+    };
+    this.CONNECTION_WIDTH_RANGE = {
+      min: 2,
+      max: 40,
+      default: this.defaultStyles.connectionWidth,
+    };
+    this.customStyles = { ...this.defaultStyles };
+    this.useDefault = true;
+  }
+
+  getLandmarkRadiusRange() {
+    return this.LANDMARK_RADIUS_RANGE;
+  }
+
+  getConnectionWidthRange() {
+    return this.CONNECTION_WIDTH_RANGE;
+  }
+
+  setStyles({
+    landmarkColor,
+    connectionColor,
+    landmarkRadius,
+    connectionWidth,
+    useDefault,
+  }) {
+    this.useDefault = useDefault;
+    if (!useDefault) {
+      this.customStyles = {
+        landmarkColor,
+        connectionColor,
+        landmarkRadius,
+        connectionWidth,
+      };
+    }
+  }
+  setStyles({
+    landmarkColor,
+    connectionColor,
+    landmarkRadius,
+    connectionWidth,
+    useDefault,
+  }) {
+    this.useDefault = useDefault;
+    if (!useDefault) {
+      this.customStyles = {
+        landmarkColor,
+        connectionColor,
+        landmarkRadius,
+        connectionWidth,
+      };
+    }
+  }
+
+  getCurrentStyles() {
+    return this.useDefault ? this.defaultStyles : this.customStyles;
   }
 
   drawLandmarks(landmarks) {
-    // Check landmarks are in view
-    if (!landmarks || !Array.isArray(landmarks)) {
-      console.log("No landmarks to draw");
-      return;
-    }
+    if (!landmarks || !Array.isArray(landmarks)) return;
+
+    const { landmarkColor, connectionColor, landmarkRadius, connectionWidth } =
+      this.getCurrentStyles();
+
     // Normalize landmark coordinates to canvas dimensions
     const normalizedLandmarks = landmarks.map((landmark) => {
       if (!isLandmarkInView(landmark)) {
@@ -43,11 +108,6 @@ export class CanvasDrawingUtils {
         y: landmark.y * this.videoCanvas.height,
       };
     });
-
-    // Create a filtered array of landmarks to draw
-    const landmarksToDraw = this.alwaysDrawLandmarks
-      .map((index) => normalizedLandmarks[index])
-      .filter((landmark) => landmark !== null);
 
     // console.log("landmarks length:", landmarks.length);
     // console.log(
@@ -61,22 +121,9 @@ export class CanvasDrawingUtils {
     // console.log("normalizedLandmarks:", normalizedLandmarks);
     // console.log("landmarksToDraw before drawing:", landmarksToDraw);
 
-    // Drawing style constants
-    const DRAW_COLOUR = "#FFFFFF";
-    const STROKE_WIDTH = 4;
-    const DOT_RADIUS = 4;
-
-    // Manually draw the landmarks as dots
-    landmarksToDraw.forEach((landmark) => {
-      this.ctx.beginPath();
-      this.ctx.arc(landmark.x, landmark.y, DOT_RADIUS, 0, 2 * Math.PI);
-      this.ctx.fillStyle = DRAW_COLOUR;
-      this.ctx.fill();
-    });
-
     // Draw connections for the exercise
-    this.ctx.strokeStyle = DRAW_COLOUR;
-    this.ctx.lineWidth = STROKE_WIDTH;
+    this.ctx.strokeStyle = connectionColor;
+    this.ctx.lineWidth = connectionWidth;
     // for (const connection of config.connections) {
     for (const connection of this.alwaysDrawConnections) {
       const start = normalizedLandmarks[connection[0]];
@@ -96,12 +143,25 @@ export class CanvasDrawingUtils {
     if (nose && leftShoulder && rightShoulder) {
       const midShoulderX = (leftShoulder.x + rightShoulder.x) / 2;
       const midShoulderY = (leftShoulder.y + rightShoulder.y) / 2;
-      this.ctx.strokeStyle = DRAW_COLOUR;
-      this.ctx.lineWidth = STROKE_WIDTH;
+      this.ctx.strokeStyle = connectionColor;
+      this.ctx.lineWidth = connectionWidth;
       this.ctx.beginPath();
       this.ctx.moveTo(nose.x, nose.y);
       this.ctx.lineTo(midShoulderX, midShoulderY);
       this.ctx.stroke();
     }
+
+    // Create a filtered array of landmarks to draw
+    const landmarksToDraw = this.alwaysDrawLandmarks
+      .map((index) => normalizedLandmarks[index])
+      .filter((landmark) => landmark !== null);
+
+    // Manually draw the landmarks as dots
+    landmarksToDraw.forEach((landmark) => {
+      this.ctx.beginPath();
+      this.ctx.arc(landmark.x, landmark.y, landmarkRadius, 0, 2 * Math.PI);
+      this.ctx.fillStyle = landmarkColor;
+      this.ctx.fill();
+    });
   }
 }

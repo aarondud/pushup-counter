@@ -33,15 +33,15 @@
     </div>
 
     <header class="header">
-      <!-- Memoji Icon -->
+      <!-- Social Icons -->
       <img
         src="./media/memoji-icon-color.png"
-        class="memoji-icon"
+        class="social-icon memoji"
         alt="Aaron's Memoji"
       />
-      <!-- Counter -->
-      <!-- <div id="counter" class="counter">Push-Ups: 0</div> -->
+      <!-- TODO add github icon here -->
 
+      <!-- Counter -->
       <div class="counter-dropdown">
         <button class="counter-btn" id="counterBtn">
           <span id="exerciseName">Push-Ups</span>:
@@ -89,12 +89,10 @@
     <div class="container">
       <div class="video-container">
         <canvas id="videoCanvas"></canvas>
-
         <div id="feedback" class="feedback"></div>
       </div>
 
       <div id="dataPoints" class="data-points"></div>
-
       <div class="controls">
         <button id="reset" class="btn">Reset</button>
         <button id="pause" class="btn">Pause</button>
@@ -140,24 +138,9 @@
         </button>
       </div>
       <div class="menu-content">
+        <!-- Activity Type -->
         <div class="menu-item">
-          <span>Dark Mode</span>
-          <label class="switch">
-            <input type="checkbox" id="menuThemeToggle" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="menu-item">
-          <span>Mute Sounds</span>
-          <label class="switch">
-            <input type="checkbox" id="soundToggle" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="menu-item">
-          <label for="activityType">Activity Type</label>
+          <span>Activity Type</span>
           <div class="dropdown-container">
             <button id="sideMenuExerciseBtn" class="dropdown-btn">
               <span class="exercise-name">Push-Ups</span>
@@ -171,31 +154,101 @@
           </div>
         </div>
 
-        <!-- <div class="menu-item">
-          <label for="landmarkColour">🔘 LandmarkColour</label>
-          <select id="landmarkColour"> -->
-        <!-- TO DO add a colour selector element here -->
-        <!-- </select>
-        </div> -->
+        <!-- Mute Sounds -->
+        <div class="menu-item">
+          <span>Mute Sounds</span>
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
 
-        <!-- <div class="menu-item">
-          <label for="connectionColour">⎯ Connection Colour</label>
-          <select id="connectionColour"> -->
-        <!-- TO DO add a colour selector element here -->
-        <!-- </select>
-        </div> -->
+        <!-- Divider -->
+        <div class="menu-divider"></div>
 
-        <!-- <div class="menu-item"> -->
-        <!-- add a slider here that can adjust the radius size of landmarks -->
-        <!-- </div> -->
+        <!-- Dark Mode -->
+        <div class="menu-item">
+          <span>Dark Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="menuThemeToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
 
-        <!-- <div class="menu-item"> -->
-        <!-- add a default theme button here that reverts all styling settings to default -->
-        <!-- </div> -->
+        <!-- Default -->
+        <div class="menu-item">
+          <span>Default</span>
+          <label class="switch">
+            <input type="checkbox" id="defaultToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
 
-        <button id="infoButton" class="btn" style="margin-top: 20px">
-          ℹ️ About Detection Logic
-        </button>
+        <!-- Randomize -->
+        <div class="menu-item">
+          <span>Randomize</span>
+          <button id="randomizeStyle" class="btn btn-icon">
+            <span class="dice-icon">🎲</span>
+          </button>
+        </div>
+
+        <!-- Landmark Customisatino -->
+        <div class="menu-item">
+          <span>Landmarks Colour</span>
+          <div class="color-picker">
+            <input
+              type="color"
+              id="landmarkColor"
+              class="color-input"
+              value="#FFFFFF"
+            />
+          </div>
+        </div>
+        <div class="menu-item">
+          <span>Landmarks Size</span>
+          <div class="slider-row">
+            <input
+              type="range"
+              id="landmarkRadius"
+              min="2"
+              max="10"
+              value="4"
+            />
+          </div>
+        </div>
+        <!-- Connections Customisation -->
+        <div class="menu-item">
+          <span>Connections Colour</span>
+          <div class="color-picker">
+            <input
+              type="color"
+              id="connectionColor"
+              class="color-input"
+              value="#FFFFFF"
+            />
+          </div>
+        </div>
+        <div class="menu-item">
+          <span>Connections Size</span>
+          <div class="slider-row">
+            <input
+              type="range"
+              id="connectionWidth"
+              min="2"
+              max="8"
+              value="4"
+            />
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="menu-divider"></div>
+
+        <!-- Detection Logic -->
+        <div class="menu-item">
+          <span>Detection Logic</span>
+          <button id="infoButton" class="btn btn-icon">ℹ️</button>
+        </div>
       </div>
 
       <div class="menu-footer">
@@ -204,7 +257,12 @@
           class="portfolio-link"
           target="_blank"
         >
-          Visit My Portfolio
+          <img
+            src="./media/memoji-icon-color.png"
+            class="portfolio-icon"
+            alt="Aaron's Memoji"
+          />
+          <span class="portfolio-text">Visit My Portfolio</span>
         </a>
       </div>
     </div>

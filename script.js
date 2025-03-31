@@ -11,6 +11,7 @@ class ExerciseApp {
     this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
     this.exerciseManager = new ExerciseManager();
     this.uiManager = new UIManager(this.exerciseManager);
+    this.uiManager.setDrawingUtils(this.drawingUtils);
 
     this.initExercise();
     this.initPoseProcessor();
@@ -49,10 +50,6 @@ class ExerciseApp {
     document.getElementById("reset").addEventListener("click", () => {
       this.exerciseDetector.reset();
     });
-
-    // document.getElementById("testSound").addEventListener("click", () => {
-    //   this.uiManager.playExerciseSound();
-    // });
 
     // TODO: needed?
     document.addEventListener("exerciseChange", (e) =>
