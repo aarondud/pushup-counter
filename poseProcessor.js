@@ -35,7 +35,7 @@ export class PoseProcessor {
       await this.startVideoStream();
     } catch (error) {
       console.error("Failed to initialize PoseLandmarker:", error);
-      throw new Error("Error loading pose detection. Refresh the page.");
+      throw new Error("Error loading pose detection. Allow camera access.");
     }
   }
 

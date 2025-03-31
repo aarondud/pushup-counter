@@ -29,6 +29,57 @@ export class UIManager {
     document.body.appendChild(this.sideMenu);
     document.body.appendChild(this.menuOverlay);
 
+    // Define single source of truth for metrics
+    this.metricConfig = {
+      leftElbowAngle: {
+        label: "💪 Left Elbow",
+        value: "N/A",
+      },
+      rightElbowAngle: {
+        label: "💪 Right Elbow",
+        value: "N/A",
+      },
+      avgWristDepth: {
+        label: "⬇️ Avg Wrist Depth",
+        value: "N/A",
+      },
+      leftShoulderAngle: {
+        label: "🤷‍♂️ Left Shoulder",
+        value: "N/A",
+      },
+      rightShoulderAngle: {
+        label: "🤷‍♂️ Right Shoulder",
+        value: "N/A",
+      },
+      avgHeightDepth: {
+        label: "🧍‍♀️ Avg Height Depth",
+        value: "N/A",
+      },
+      leftHipAngle: {
+        label: "🏃‍♂️ Left Hip",
+        value: "N/A",
+      },
+      rightHipAngle: {
+        label: "🏃‍♂️ Right Hip",
+        value: "N/A",
+      },
+      avgHipAngle: {
+        label: "📏 Back Straightness",
+        value: "N/A",
+      },
+      leftKneeAngle: {
+        label: "🦵 Left Knee",
+        value: "N/A",
+      },
+      rightKneeAngle: {
+        label: "🦵 Right Knee",
+        value: "N/A",
+      },
+    };
+    this.ANGLE_PRECISION = 0;
+    this.OTHER_METRIC_PRECISION = 0.3;
+    this.ANGLE_UNIT = "°";
+
     // Initialise
     this.currentCount = 0;
     this.lastDataPoints = null;
@@ -36,6 +87,7 @@ export class UIManager {
     this.exerciseManager = exerciseManager;
     this.updateUIForExercise();
     this.drawingUtils = null;
+    this.renderMetrics();
     this.setupEventListeners();
     this.initializeTheme();
     this.initDropdown("counterBtn", "exerciseDropdown");
@@ -120,50 +172,75 @@ export class UIManager {
     return `${Number(value).toFixed(precision)} ${unit}`;
   };
 
-  updateDataPoints(metrics) {
-    this.lastDataPoints = {
-      leftElbowAngle: this.formatMetric(metrics.leftElbowAngle, "°", 0),
-      rightElbowAngle: this.formatMetric(metrics.rightElbowAngle, "°", 0),
-      avgWristDepth: this.formatMetric(metrics.avgWristDepth, "", 0.3),
+  renderMetrics(metrics = null) {
+    // If metrics are provided, update the values in metricConfig
+    if (metrics) {
+      this.metricConfig.leftElbowAngle.value = this.formatMetric(
+        metrics.leftElbowAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.rightElbowAngle.value = this.formatMetric(
+        metrics.rightElbowAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.avgWristDepth.value = this.formatMetric(
+        metrics.avgWristDepth,
+        "",
+        this.OTHER_METRIC_PRECISION
+      );
+      this.metricConfig.leftShoulderAngle.value = this.formatMetric(
+        metrics.leftShoulderAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.rightShoulderAngle.value = this.formatMetric(
+        metrics.rightShoulderAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.avgHeightDepth.value = this.formatMetric(
+        metrics.avgHeightDepth,
+        "",
+        this.OTHER_METRIC_PRECISION
+      );
+      this.metricConfig.leftHipAngle.value = this.formatMetric(
+        metrics.leftHipAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.rightHipAngle.value = this.formatMetric(
+        metrics.rightHipAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.avgHipAngle.value = this.formatMetric(
+        metrics.avgHipAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.leftKneeAngle.value = this.formatMetric(
+        metrics.leftKneeAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+      this.metricConfig.rightKneeAngle.value = this.formatMetric(
+        metrics.rightKneeAngle,
+        this.ANGLE_UNIT,
+        this.ANGLE_PRECISION
+      );
+    }
 
-      leftShoulderAngle: this.formatMetric(metrics.leftShoulderAngle, "°", 0),
-      rightShoulderAngle: this.formatMetric(metrics.rightShoulderAngle, "°", 0),
-      avgHeightDepth: this.formatMetric(metrics.avgHeightDepth, "", 0.3),
-
-      leftHipAngle: this.formatMetric(metrics.leftHipAngle, "°", 0),
-      rightHipAngle: this.formatMetric(metrics.rightHipAngle, "°", 0),
-      avgHipAngle: this.formatMetric(metrics.avgHipAngle, "°", 0),
-
-      leftKneeAngle: this.formatMetric(metrics.leftKneeAngle, "°", 0),
-      rightKneeAngle: this.formatMetric(metrics.rightKneeAngle, "°", 0),
-    };
-
-    // Define labels & emojis for each metric
-    const metricLabels = {
-      leftElbowAngle: "💪 Left Elbow",
-      rightElbowAngle: "💪 Right Elbow",
-      avgWristDepth: "⬇️ Avg Wrist Depth",
-
-      leftShoulderAngle: "🤷‍♂️ Left Shoulder",
-      rightShoulderAngle: "🤷‍♂️ Right Shoulder",
-      avgHeightDepth: "🧍‍♀️ Avg Height Depth",
-
-      leftHipAngle: "🏃‍♂️ Left Hip",
-      rightHipAngle: "🏃‍♂️ Right Hip",
-      avgHipAngle: "📏 Back Straightness",
-
-      leftKneeAngle: "🦵 Left Knee",
-      rightKneeAngle: "🦵 Right Knee",
-    };
-
-    // Generate HTML for live data points
+    // Generate HTML using metricConfig values
     this.dataPoints.innerHTML = `
-      <div class="data-points-grid">
-        ${Object.entries(this.lastDataPoints)
+      <h2>Body Positioning</h2>
+      <div class="metrics-grid">
+        ${Object.entries(this.metricConfig)
           .map(
-            ([key, value]) => `
+            ([key, { label, value }]) => `
           <div>
-            <span class="label">${metricLabels[key]}:</span>
+            <span class="label">${label}:</span>
             <span>${value}</span>
           </div>
         `

@@ -88,7 +88,7 @@ class ExerciseApp {
 
     const metrics = PoseCalculations.calculateMetrics(landmarks);
     this.exerciseDetector.processPose(landmarks, metrics);
-    this.uiManager.updateDataPoints(metrics);
+    this.uiManager.renderMetrics(metrics);
   }
 }
 

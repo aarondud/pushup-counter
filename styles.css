@@ -312,7 +312,7 @@ body {
 }
 
 /* Live data points statistics */
-.data-points {
+.metrics {
     width: 100%;
     max-width: 800px;
     margin: 0 auto 20px;
@@ -323,14 +323,18 @@ body {
     font-size: 14px;
 }
 
-.data-points-grid {
+.metrics h2 {
+    text-align: center;
+}
+
+.metrics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px 16px;
     align-items: center;
 }
 
-.data-points-grid .label {
+.metrics-grid .label {
     font-weight: bold;
 }
 
@@ -915,7 +919,7 @@ body.pulse {
 
 /* Screen size adjustments */
 @media (max-width: 800px) {
-    .data-points-grid {
+    .metrics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
@@ -938,7 +942,7 @@ body.pulse {
 }
 
 @media (max-width: 500px) {
-    .data-points-grid {
+    .metrics-grid {
         grid-template-columns: 1fr;
     }
 
