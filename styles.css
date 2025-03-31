@@ -87,7 +87,6 @@ body {
     max-width: 500px;
     min-width: 100px;
     width: calc(100vw - 200px);
-
     display: flex;
     position: relative;
     gap: 4px;
@@ -102,6 +101,7 @@ body {
     justify-content: center;
     padding: 10px 20px;
     z-index: 21;
+    white-space: nowrap;
 }
 
 .counter-btn:hover {
@@ -954,9 +954,29 @@ body.pulse {
     }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 374px) {
     .header .counter {
         font-size: 16px;
         padding: 6px 12px;
+    }
+
+    .counter-btn {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .header {
+        padding: 10px 10px;
+    }
+
+    .social-icons {
+        gap: 5px;
+    }
+
+    .menu-toggle,
+    .hamburger-icon,
+    .social-icon {
+        width: 30px;
+        height: 30px;
     }
 }
