@@ -7,10 +7,15 @@ export class ExerciseManager {
     this.exercises = {
       pushUp: {
         name: "Push-Ups",
-        color: "#2196f3", // blue
-        icon: "💪",
-        defaultSound: "sounds/YEAHBUDDY.mp3",
         detector: PushUpDetector,
+        icon: "💪",
+        color: "#2196f3", // blue
+        sounds: [
+          "media/carryboats.mp3",
+          "media/imback.mp3",
+          "media/stayhard.mp3",
+          "media/theydont.mp3",
+        ],
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24],
         hysteresis: 5,
@@ -66,20 +71,28 @@ export class ExerciseManager {
       },
       squat: {
         name: "Squats",
-        color: "#795548", // brown
-        icon: "💪",
-        defaultSound: "sounds/YEAHBUDDY.mp3",
         detector: SquatDetector,
+        icon: "🏋️‍♂️",
+        color: "#795548", // brown
+        sounds: [
+          "media/yeahbuddy.mp3",
+          "media/lightweight.mp3",
+          "media/gottaget.mp3",
+          "media/wooo.mp3",
+          "media/yeap.mp3",
+        ],
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
         thresholds: {},
       },
       punch: {
         name: "Punches",
-        color: "#9c27b0", // purple
-        icon: "👊",
-        defaultSound: "sounds/YEAHBUDDY.mp3",
         detector: PunchDetector,
+        icon: "🥊",
+        color: "#9c27b0", // purple
+
+        sounds: ["media/punch1.mp3"],
+
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
         thresholds: {},
@@ -87,7 +100,6 @@ export class ExerciseManager {
     };
     this.currentExercise = "pushUp";
     this.previousCounts = {}; // For session persistence
-    this.isMuted = false;
   }
 
   // Set current exercise
@@ -113,19 +125,6 @@ export class ExerciseManager {
       type: this.currentExercise,
     };
   }
-
-  setCurrentSound(soundPath) {
-    this.exercises[this.currentExercise].currentSound = soundPath;
-  }
-
-  toggleMute() {
-    this.isMuted = !this.isMuted;
-    return this.isMuted;
-  }
-
-  //   saveCountsToStorage() {
-  //     localStorage.setItem("exerciseCounts", JSON.stringify(this.exercises));
-  //   }
 
   //   loadCountsFromStorage() {
   //     const saved = localStorage.getItem("exerciseCounts");

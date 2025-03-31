@@ -4,6 +4,7 @@ export class UIManager {
   constructor(exerciseManager) {
     this.feedback = document.getElementById("feedback");
     this.counter = document.getElementById("counter");
+    this.isMuted = false;
 
     // Data elements
     this.dataPoints = document.getElementById("dataPoints");
@@ -22,10 +23,6 @@ export class UIManager {
     this.menuToggle = document.getElementById("menuToggle");
     this.sideMenu = document.getElementById("sideMenu");
     this.menuOverlay = document.getElementById("menuOverlay");
-    this.menuToggle.addEventListener("click", () => this.toggleMenu());
-    document.querySelector(".memoji-icon").addEventListener("click", () => {
-      window.open("https://aarondudley.vercel.app", "_blank");
-    });
 
     // Add elements to DOM
     document.body.appendChild(this.sideMenu);
@@ -38,10 +35,9 @@ export class UIManager {
     this.exerciseManager = exerciseManager;
     this.setupEventListeners();
     this.initializeTheme();
-    this.initSideMenu();
-
     this.initDropdown("counterBtn", "exerciseDropdown");
-    this.initDropdown("sideMenuExerciseBtn", "sideMenuExerciseDropdown");
+    this.initSideMenu();
+    this.initSoundControls();
 
     // Show tutorial modal once
     if (!localStorage.getItem("tutorialShown")) {
@@ -94,8 +90,17 @@ export class UIManager {
       this.playButton.disabled = true;
     });
 
+    document.getElementById("testSound").addEventListener("click", () => {
+      this.playExerciseSound(); // Play current exercise's default sound
+    });
+
     document.getElementById("closeTutorial").addEventListener("click", () => {
       this.tutorialModal.classList.remove("show");
+    });
+
+    this.menuToggle.addEventListener("click", () => this.toggleMenu());
+    document.querySelector(".memoji-icon").addEventListener("click", () => {
+      window.open("https://aarondudley.vercel.app", "_blank");
     });
   }
 
@@ -188,7 +193,7 @@ export class UIManager {
     this.pushUpStatsBody.appendChild(row);
   }
 
-  triggerPulseAnimation() {
+  triggerCelebration() {
     document.body.classList.remove("pulse");
     void document.body.offsetWidth;
     document.body.classList.add("pulse");
@@ -226,9 +231,13 @@ export class UIManager {
       this.infoModal.classList.add("show");
     });
 
+    // Close modal handlers
     document.querySelector(".close-modal").addEventListener("click", () => {
       this.infoModal.classList.remove("show");
     });
+
+    // Dropdown handlers
+    this.initDropdown("sideMenuExerciseBtn", "sideMenuExerciseDropdown");
   }
 
   toggleMenu() {
@@ -259,23 +268,22 @@ export class UIManager {
   }
 
   initSoundControls() {
-    // Mute toggle
     document.getElementById("soundToggle").addEventListener("change", (e) => {
       this.exerciseManager.isMuted = e.target.checked;
     });
+  }
 
-    // Sound selector dropdown
-    const soundSelector = document.getElementById("audioTheme");
-    soundSelector.addEventListener("change", (e) => {
-      this.exerciseManager.setCurrentSound(e.target.value);
-    });
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    return this.isMuted;
   }
 
   playExerciseSound() {
     if (this.exerciseManager.isMuted) return;
 
-    const soundPath = this.exerciseManager.getCurrentExercise().currentSound;
-    new Audio(soundPath).play().catch((e) => console.warn("Sound error:", e));
+    const sounds = this.exerciseManager.getCurrentExercise().sounds;
+    const randomSound = sounds[Math.floor(Math.random() * sounds.length)]; // Random selection
+    new Audio(randomSound).play().catch((e) => console.warn("Sound error:", e));
   }
 
   // Close side menu by clicking outside

@@ -50,13 +50,18 @@ class ExerciseApp {
       this.exerciseDetector.reset();
     });
 
+    // document.getElementById("testSound").addEventListener("click", () => {
+    //   this.uiManager.playExerciseSound();
+    // });
+
+    // TODO: needed?
     document.addEventListener("exerciseChange", (e) =>
       this.handleExerciseChange(e.detail.exerciseType)
     );
   }
 
   handleExerciseDetected(data) {
-    this.uiManager.triggerPulseAnimation();
+    this.uiManager.triggerCelebration();
     this.uiManager.updateActivityLog({
       ...data,
       activity: this.exerciseManager.getCurrentExercise().name,
