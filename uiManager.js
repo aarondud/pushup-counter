@@ -31,49 +31,78 @@ export class UIManager {
 
     // Define single source of truth for metrics
     this.metricConfig = {
+      // Left Metrics
       leftElbowAngle: {
         label: "💪 Left Elbow",
         value: "N/A",
-      },
-      rightElbowAngle: {
-        label: "💪 Right Elbow",
-        value: "N/A",
-      },
-      avgWristDepth: {
-        label: "⬇️ Avg Wrist Depth",
-        value: "N/A",
+
+        group: "left",
       },
       leftShoulderAngle: {
         label: "🤷‍♂️ Left Shoulder",
         value: "N/A",
-      },
-      rightShoulderAngle: {
-        label: "🤷‍♂️ Right Shoulder",
-        value: "N/A",
-      },
-      avgHeightDepth: {
-        label: "🧍‍♀️ Avg Height Depth",
-        value: "N/A",
+
+        group: "left",
       },
       leftHipAngle: {
         label: "🏃‍♂️ Left Hip",
         value: "N/A",
-      },
-      rightHipAngle: {
-        label: "🏃‍♂️ Right Hip",
-        value: "N/A",
-      },
-      avgHipAngle: {
-        label: "📏 Back Straightness",
-        value: "N/A",
+
+        group: "left",
       },
       leftKneeAngle: {
         label: "🦵 Left Knee",
         value: "N/A",
+
+        group: "left",
+      },
+      // Right Metrics
+      rightElbowAngle: {
+        label: "💪 Right Elbow",
+        value: "N/A",
+
+        group: "right",
+      },
+      rightShoulderAngle: {
+        label: "🤷‍♂️ Right Shoulder",
+        value: "N/A",
+
+        group: "right",
+      },
+      rightHipAngle: {
+        label: "🏃‍♂️ Right Hip",
+        value: "N/A",
+
+        group: "right",
       },
       rightKneeAngle: {
         label: "🦵 Right Knee",
         value: "N/A",
+
+        group: "right",
+      },
+      // Other Metrics
+      avgWristDepth: {
+        label: "⬇️ Wrist Depth",
+        value: "N/A",
+
+        group: "other",
+      },
+      avgHeightDepth: {
+        label: "🧍‍♀️ Height Depth",
+        value: "N/A",
+
+        group: "other",
+      },
+      avgHipAngle: {
+        label: "📏 Back Angle",
+        value: "N/A",
+        group: "other",
+      },
+      placeholder: {
+        label: "📏 Placeholder",
+        value: "N/A",
+        group: "other",
       },
     };
     this.ANGLE_PRECISION = 0;
@@ -230,24 +259,29 @@ export class UIManager {
         this.ANGLE_UNIT,
         this.ANGLE_PRECISION
       );
+      // this.metricConfig.placeholder.value = this.formatMetric(
+      //   null,
+      //   "",
+      //   this.OTHER_METRIC_PRECISION
+      // );
     }
 
     // Generate HTML using metricConfig values
     this.dataPoints.innerHTML = `
-      <h2>Body Positioning</h2>
-      <div class="metrics-grid">
-        ${Object.entries(this.metricConfig)
-          .map(
-            ([key, { label, value }]) => `
-          <div>
-            <span class="label">${label}:</span>
-            <span>${value}</span>
-          </div>
-        `
-          )
-          .join("")}
-      </div>
-    `;
+    <h2>Body Positioning</h2>
+    <div class="metrics-grid">
+      ${Object.entries(this.metricConfig)
+        .map(
+          ([key, { label, value, group }]) => `
+        <div class="metric-item ${group}">
+          <span class="label">${label}</span>
+          <span class="value">${value}</span>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+  `;
   }
 
   updateActivityLog({ count, upDuration, downDuration }) {
