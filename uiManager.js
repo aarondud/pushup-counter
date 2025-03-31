@@ -102,11 +102,6 @@ export class UIManager {
     });
 
     this.menuToggle.addEventListener("click", () => this.toggleMenu());
-    document
-      .querySelector(".social-icon.memoji")
-      .addEventListener("click", () => {
-        window.open("https://aarondudley.vercel.app", "_blank");
-      });
   }
 
   updateFeedback(message, type) {
