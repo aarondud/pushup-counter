@@ -106,21 +106,18 @@
         <div id="feedback" class="feedback"></div>
       </div>
 
-      <!-- Live Metrics -->
-      <div id="dataPoints" class="metrics"></div>
-      <div class="controls">
-        <button id="reset" class="btn">Reset</button>
-        <button id="pause" class="btn">Pause</button>
-        <button id="play" class="btn" disabled>Play</button>
-        <button id="testSound" class="btn">Test Sound</button>
-      </div>
+      <!-- Statistics Container -->
+      <div class="stats-container">
+        <!-- Live Metrics -->
+        <div id="dataPoints" class="metrics card-component"></div>
 
-      <!-- Activity Log -->
-      <div class="stats">
-        <h2>Activity Log</h2>
-        <table id="pushUpStats">
-          <tbody id="pushUpStatsBody"></tbody>
-        </table>
+        <!-- Activity Log -->
+        <div class="stats card-component">
+          <h2>Activity Log</h2>
+          <table id="pushUpStats">
+            <tbody id="pushUpStatsBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -237,6 +234,14 @@
         <div class="menu-item">
           <span>Detection Logic</span>
           <button id="infoButton" class="btn btn-icon">ℹ️</button>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="menu-item controls">
+          <button id="reset" class="btn">Reset</button>
+          <button id="pause" class="btn">Pause</button>
+          <button id="play" class="btn" disabled>Play</button>
+          <button id="testSound" class="btn">Test Sound</button>
         </div>
       </div>
 

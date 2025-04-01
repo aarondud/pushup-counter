@@ -183,6 +183,10 @@ export class UIManager {
     });
 
     this.menuToggle.addEventListener("click", () => this.toggleMenu());
+
+    // Adjust heights on load and resize
+    window.addEventListener("load", () => this.adjustDesktopHeights());
+    window.addEventListener("resize", () => this.adjustDesktopHeights());
   }
 
   updateFeedback(message, type) {
@@ -623,6 +627,34 @@ export class UIManager {
   setDrawingUtils(drawingUtils) {
     this.drawingUtils = drawingUtils;
     this.initStylingControls();
+  }
+
+  adjustDesktopHeights() {
+    const videoContainer = document.querySelector(".video-container");
+    const statsContainer = document.querySelector(".stats-container");
+    const container = document.querySelector(".container");
+
+    if (window.innerWidth >= 800) {
+      // Calculate available height (viewport height - header height - padding)
+      const availableHeight = window.innerHeight - 70 - 40; // Header height (70px) + container padding (20px top + 20px bottom)
+
+      // Set video container height to maintain 16:9 aspect ratio within available space
+      const videoWidth = videoContainer.offsetWidth;
+      const videoHeight = videoWidth * (9 / 16); // 16:9 aspect ratio
+      const finalVideoHeight = Math.min(videoHeight, availableHeight);
+      videoContainer.style.height = `${finalVideoHeight}px`;
+
+      // Set the stats-container height to match the video container height
+      statsContainer.style.height = `${finalVideoHeight}px`;
+
+      // Ensure container is centered vertically
+      container.style.minHeight = `${finalVideoHeight}px`;
+    } else {
+      // Reset heights on mobile
+      videoContainer.style.height = "auto";
+      statsContainer.style.height = "auto";
+      container.style.minHeight = "auto";
+    }
   }
 
   reset() {

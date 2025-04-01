@@ -1,7 +1,6 @@
 import { PoseProcessor } from "./poseProcessor.js";
 import { PoseCalculations } from "./poseCalculations.js";
 import { CanvasDrawingUtils } from "./drawingUtils.js";
-import { PushUpDetector } from "./exerciseDetectors/pushUpDetector.js";
 import { UIManager } from "./uiManager.js";
 import { ExerciseManager } from "./exerciseManager.js";
 
