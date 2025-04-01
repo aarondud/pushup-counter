@@ -18,6 +18,7 @@ export class UIManager {
     // Controls
     this.pauseButton = document.getElementById("pause");
     this.playButton = document.getElementById("play");
+    this.testLogButton = document.getElementById("testLog");
 
     // Menu elements
     this.menuToggle = document.getElementById("menuToggle");
@@ -150,6 +151,33 @@ export class UIManager {
       this.playExerciseSound();
     });
 
+    document.getElementById("testLog").addEventListener("click", () => {
+      const testData = {
+        activityType: "Squat",
+        emoji: "🏋️‍♀️",
+        totalCount: 15,
+        timestamp: "07:30:22",
+        keyAngles: { knee: 80, hip: 85 },
+      };
+
+      const testString = [
+        "+1 💪 nailed at 09:17, lets gooo",
+        "+1 🥊 testing",
+        "+1 🏋 and now this oneeeeeeeeeee",
+        "+1🚌 hi",
+      ];
+
+      function getRandomNumber() {
+        return Math.floor(Math.random() * 3);
+      }
+
+      const randString = testString[getRandomNumber()];
+
+      this.updateActivityLog(randString);
+
+      console.log("Test log added:", testString);
+    });
+
     document.getElementById("closeTutorial").addEventListener("click", () => {
       this.tutorialModal.classList.remove("show");
     });
@@ -261,9 +289,28 @@ export class UIManager {
   `;
   }
 
-  updateActivityLog(string) {
-    // TO DO
-    return null;
+  // Update activity log with animation
+  updateActivityLog(logEntry) {
+    if (!this.activityLogBody || !logEntry) return;
+
+    const existingEntries = this.activityLogBody.querySelectorAll(".log-entry");
+
+    const entry = document.createElement("div");
+    entry.className = "log-entry";
+    entry.textContent = logEntry;
+
+    // Add animation to new entry
+    entry.style.animation = "logFadeInSlideDown 0.3s ease-out";
+
+    // Insert new entry at the top (first position)
+    if (existingEntries.length > 0) {
+      this.activityLogBody.insertBefore(entry, existingEntries[0]);
+    } else {
+      this.activityLogBody.appendChild(entry);
+    }
+
+    // Auto-scroll to keep new entry visible
+    this.activityLogBody.scrollTop = 0;
   }
 
   triggerCelebration() {

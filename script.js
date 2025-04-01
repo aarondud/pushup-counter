@@ -72,10 +72,8 @@ class ExerciseApp {
 
   handleExerciseDetected(data) {
     this.uiManager.triggerCelebration();
-    this.uiManager.updateActivityLog({
-      ...data,
-      activity: this.exerciseManager.getCurrentExercise().name,
-    });
+    const logEntry = this.generateActivityLog(data);
+    this.uiManager.updateActivityLog(logEntry);
   }
 
   async handleExerciseChange(exerciseType) {
@@ -98,6 +96,72 @@ class ExerciseApp {
     const metrics = PoseCalculations.calculateMetrics(landmarks);
     this.exerciseDetector.processPose(landmarks, metrics);
     this.uiManager.renderMetrics(metrics);
+  }
+
+  // Function to generate a random log sentence
+  generateActivityLog(logData) {
+    const logTemplates = {
+      total: [
+        "+1 {emoji} {count} and counting, another!",
+        "+1 {emoji} {count} reps deep, you’re a machine!",
+        "+1 {emoji} {count} strong, let’s see another!",
+        "+1 {emoji} {count} down, keep going!",
+        "+1 {emoji} {count} and climbing, unstoppable!",
+      ],
+      timestamp: [
+        "+1 {emoji} nailed at {time}, lets gooo",
+        "+1 {emoji} smashed at {time}",
+        "+1 {emoji} another at {time}",
+        "+1 {emoji} hit at {time}, too strong!",
+        "+1 {emoji} at {time}",
+      ],
+      sound: [
+        "+1 {emoji} yeaahhhh buddy!",
+        "+1 {emoji} WHOS GONNA CARRY THE BOATS!?",
+        "+1 {emoji} they dont know you son !!!",
+        "+1 {emoji} lightweight babbyyy",
+      ],
+      keyAngles: [
+        "+1 {emoji} deep! Your {angle_name} hit {angle_size}°!",
+        "+1 {emoji} nice form, {angle_size}° {angle_name} bend",
+        "+1 {emoji} {angle_size}° {angle_name}, keep that depth",
+        "+1 {emoji} {angle_size}° {angle_name} drop, solid technique",
+      ],
+      // TODO add sound functionality? duration?
+    };
+
+    // Console log the raw JSON data
+    console.log("Raw JSON Data:", JSON.stringify(logData, null, 2));
+
+    // Step 1: Choose a random log type
+    const logTypes = Object.keys(logTemplates);
+    const randomType = logTypes[Math.floor(Math.random() * logTypes.length)];
+
+    // Step 2: Choose a random sentence from that type
+    const sentences = logTemplates[randomType];
+    const randomSentence =
+      sentences[Math.floor(Math.random() * sentences.length)];
+
+    // Step 3: Populate the sentence with JSON data
+    let result = randomSentence
+      .replace("{emoji}", logData.emoji)
+      .replace("{count}", logData.totalCount)
+      .replace("{time}", logData.timestamp);
+    // TODO could very easily add dufrations - that one took o.3 seconds
+    // .replace("{down_phase}", logData.durations.down.toFixed(1))
+    //     .replace("{up_phase}", logData.durations.up.toFixed(1));
+
+    if (randomType === "keyAngles") {
+      const angles = Object.keys(logData.keyAngles);
+      const randomAngleKey = angles[Math.floor(Math.random() * angles.length)];
+      const angleValue = logData.keyAngles[randomAngleKey];
+      result = result
+        .replace(/{angle_size}/g, angleValue)
+        .replace(/{angle_name}/g, randomAngleKey);
+    }
+
+    // Step 4: Return the populated string
+    return result;
   }
 }
 

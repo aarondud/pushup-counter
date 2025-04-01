@@ -15,6 +15,13 @@ export function isLandmarkInView(landmark) {
   );
 }
 
+// Calculates the angle between three points (p1, p2, p3)
+export function calculateAngle(p1, p2, p3) {
+  const radians =
+    Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x);
+  return Math.abs((radians * 180) / Math.PI);
+}
+
 // Calculate the 3D angle between three points (p1, p2, p3)
 export function calc3DAngle(p1, p2, p3) {
   const v1 = { x: p1.x - p2.x, y: p1.y - p2.y, z: p1.z - p2.z };

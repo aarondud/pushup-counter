@@ -1,5 +1,4 @@
 :root {
-    /* --bg: #ffffff; */
     --bg: #8EC5FC;
     --text: #333333;
     --primary: #4CAF50;
@@ -16,7 +15,6 @@
 }
 
 [data-theme="dark"] {
-    /* --bg: #1a1a1a; */
     --bg: #1e2a47;
     --text: #ffffff;
     --primary: #66bb6a;
@@ -251,8 +249,6 @@ body {
         "video stats-container";
     justify-content: center;
     align-items: center;
-    /* overflow: hidden; */
-    /* Prevent scrolling within the container */
 }
 
 /* -------- Video Container-------- */
@@ -262,8 +258,6 @@ body {
     overflow: visible;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
-
-
 }
 
 #videoCanvas {
@@ -327,6 +321,8 @@ body {
     flex-direction: column;
     gap: 20px;
     height: 100%;
+    min-height: 0;
+    /* Crucial for proper flex child sizing */
 }
 
 /* Shared styling for metrics and activity log */
@@ -337,12 +333,13 @@ body {
     border-radius: 8px;
     font-size: 14px;
     box-sizing: border-box;
-    /* TO DO only apply to body, not header */
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(50px);
-
-
+    flex: 1 1 50%;
+    /* Equal flex growth/shrink */
+    min-height: 0;
+    /* Crucial for proper scrolling */
 }
 
 .card-component h2 {
@@ -353,25 +350,64 @@ body {
 }
 
 .metrics,
-.activityLog {
-    overflow-x: auto;
+.activity-log {
+    /* composes: card-component; */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     flex: 1;
+    /* Ensures equal height distribution */
+    min-height: 0;
+    /* Helps prevent unintended overflow */
+
+}
+
+.card-component h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    flex: 0 0 auto;
+    /* Prevent header from growing */
+}
+
+.metrics-grid,
+.log-body {
+    flex: 1;
+    min-height: 0;
+    /* Crucial for proper scrolling */
+    overflow-y: auto;
 }
 
 
 /* -------- Activity Log -------- */
-.activityLog {
+.activity-log {
     grid-area: stats;
+    display: flex;
+    flex-direction: column;
 }
 
-.metrics,
-.activityLog {
-    composes: card-component;
+.log-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-right: 4px;
+    overflow-anchor: none;
 }
+
+.log-entry {
+    padding: 6px 0;
+    animation: logFadeSlideDown 0.3s ease-out;
+    will-change: transform, opacity;
+}
+
 
 /* --------Live Metrics -------- */
 .metrics {
     grid-area: metrics;
+    overflow-x: auto;
+    flex: 1;
 }
 
 .metrics-grid {
@@ -1020,6 +1056,19 @@ input:checked+.slider:before {
     }
 }
 
+@keyframes logFadeInSlideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
 
 /* --------- Screen size adjustments -------- */
 /* Mobile Layout (Width < 800px) */
@@ -1032,31 +1081,27 @@ input:checked+.slider:before {
         align-items: stretch;
         height: auto;
         min-height: calc(100vh - 70px);
-
     }
 
     .video-container {
         width: 100%;
-    }
-
-    .stats-container {
-        width: 100%;
-        min-height: fit-content;
-
+        flex: 1 1 auto;
     }
 
     .feedback {
         width: 90%;
     }
 
-    .metrics {
+    .metrics,
+    .activity-log {
         width: 100%;
-        height: fit-content;
+        flex: 1 1 auto;
+        min-height: 300px;
+        /* Minimum height for mobile */
     }
 
-    .activityLog {
-        width: 100%;
-        min-height: 300px;
+    .metrics {
+        height: fit-content;
     }
 
     .metrics-grid {

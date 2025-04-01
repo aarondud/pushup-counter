@@ -5,14 +5,13 @@ import { ExerciseDetector } from "./exerciseDetector.js";
 export class PushUpDetector extends ExerciseDetector {
   constructor(onExerciseDetected, onFeedback, config) {
     super(onExerciseDetected, onFeedback, config);
-    this.DELTA_DEG_PER_FRAME = 0.3;
-    this.VEL_BUFFER_SIZE = 5;
+    this.conditions = config.conditions;
   }
 
   processPose(landmarks, metrics) {
     // 1. Update movement tracking
-    const { avgElbowAngle } = metrics;
-    this.updateVelocity(avgElbowAngle);
+    const elbowAngle = metrics.angles.elbow.average;
+    this.updateVelocity(elbowAngle);
 
     // 2. Visibility & push-up position check
     if (!this.validatePose(landmarks)) {
@@ -32,20 +31,18 @@ export class PushUpDetector extends ExerciseDetector {
         break;
 
       case "NOT_READY":
-        if (metrics.avgElbowAngle > 160) {
-          this.transitionTo("READY");
-        }
+        if (elbowAngle > 160) this.transitionTo("READY");
         break;
 
       case "READY":
-        if (this.isDescending && avgElbowAngle < 155) {
-          this.transitionTo("DOWN");
-        }
+        if (this.isDescending && elbowAngle < 155) this.transitionTo("DOWN");
         break;
 
       case "DOWN":
+        this.updateMinAngles(metrics);
+
         if (this.isAscending) {
-          if (metrics.avgElbowAngle <= 100) {
+          if (elbowAngle <= 100) {
             this.transitionTo("UP");
           } else {
             // didn't go deep enough
@@ -57,13 +54,8 @@ export class PushUpDetector extends ExerciseDetector {
         break;
 
       case "UP":
-        if (metrics.avgElbowAngle >= 160) {
-          this.stats.valid++;
-          this.onExerciseDetected({
-            count: this.stats.valid,
-            downDuration: this.getPhaseDuration("DOWN"),
-            upDuration: this.getPhaseDuration("UP"),
-          });
+        if (elbowAngle >= 160) {
+          this.logCompletedRep();
           this.transitionTo("READY");
         } else if (this.isDescending) {
           // Cancel rep if descending before completion
@@ -72,56 +64,25 @@ export class PushUpDetector extends ExerciseDetector {
         break;
 
       case "PARTIAL":
-        if (avgElbowAngle >= 160) {
+        if (elbowAngle >= 160) {
           this.transitionTo("READY");
-        } else if (this.isDescending && avgElbowAngle < 100) {
+        } else if (this.isDescending && elbowAngle < 100) {
           this.transitionTo("DOWN");
         }
         break;
     }
   }
 
-  // Tracking change in angle
-  updateVelocity(currentAngle) {
-    if (this.prevAngle !== null) {
-      this.velocityBuffer.push(currentAngle - this.prevAngle);
-      if (this.velocityBuffer.length > 5) this.velocityBuffer.shift();
-    }
-    this.prevAngle = currentAngle;
-  }
-
-  // Track downard push-up movement
-  get isDescending() {
-    return (
-      this.velocityBuffer.length >= this.VEL_BUFFER_SIZE &&
-      this.velocityBuffer.every((v) => v < -this.DELTA_DEG_PER_FRAME)
-    );
-  }
-
-  get isAscending() {
-    return (
-      this.velocityBuffer.length >= this.VEL_BUFFER_SIZE &&
-      this.velocityBuffer.every((v) => v > this.DELTA_DEG_PER_FRAME)
-    );
-  }
-
   isInPushUpPosition(metrics) {
+    console.log("metrics", metrics);
+    console.log("hip angle", metrics.angles.hip.average);
+    const hipAngle = metrics.angles.hip.average;
+    const wristDepth = metrics.depths.wrist.average;
     return (
-      metrics.avgBackAngle >= 150 &&
-      metrics.avgBackAngle <= 210 &&
-      metrics.avgWristDepth <= 0.13
-      // TODO back height
-
-      // isInPushUpPosition(metrics) {
-      //   const readyConfig = this.config.phases.READY.entryConditions;
-      //   return (
-      //     metrics.avgElbowAngle >= readyConfig.elbowAngle.min &&
-      //     metrics.avgElbowAngle <= readyConfig.elbowAngle.max &&
-      //     metrics.avgWristDepth <= readyConfig.wristDepth.max &&
-      //     metrics.avgBackAngle >= readyConfig.backAngle.min &&
-      //     metrics.avgBackAngle <= readyConfig.backAngle.max
-      //   );
-      // }
+      hipAngle >= this.conditions.hipAngle.min &&
+      hipAngle <= this.conditions.hipAngle.max &&
+      wristDepth <= this.conditions.wristDepth.max
+      // TODO back height < this.conditions.heightDiffMax
     );
   }
 }

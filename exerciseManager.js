@@ -18,6 +18,7 @@ export class ExerciseManager {
         ],
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24],
+        keyMetrics: ["elbow"],
         hysteresis: 5,
         minFrames: 5,
         phases: {
@@ -63,9 +64,8 @@ export class ExerciseManager {
           elbowAngleTop: { enter: 155, exit: 160 },
           elbowAngleBottom: { enter: 95, exit: 100 },
           wristDepth: { max: 0.13 },
-          backAngle: { min: 150, max: 210 },
+          hipAngle: { min: 150, max: 210 },
           wristDepthMax: 0.13,
-          backAngleRange: { min: 150, max: 210 },
           heightDiffMax: 0.05,
         },
       },
@@ -83,6 +83,7 @@ export class ExerciseManager {
         ],
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
+        keyMetrics: ["hip", "knee"],
         thresholds: {},
       },
       punch: {
@@ -90,11 +91,10 @@ export class ExerciseManager {
         detector: PunchDetector,
         icon: "🥊",
         color: "#9c27b0", // purple
-
         sounds: ["media/punch1.mp3"],
-
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
+        keyMetrics: ["elbow"],
         thresholds: {},
       },
     };
