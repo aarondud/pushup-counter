@@ -8,8 +8,8 @@ export class UIManager {
 
     // Data elements
     this.dataPoints = document.getElementById("dataPoints");
-    this.pushUpStatsTable = document.getElementById("pushUpStats");
-    this.pushUpStatsBody = document.getElementById("pushUpStatsBody");
+    this.activityLog = document.getElementById("activityLog");
+    this.activityLogBody = document.getElementById("activityLogBody");
 
     // Modal elements
     this.tutorialModal = document.getElementById("tutorialModal");
@@ -120,28 +120,6 @@ export class UIManager {
       this.tutorialModal.classList.add("show");
       localStorage.setItem("tutorialShown", "true");
     }
-
-    // Define the table headers dynamically
-    const tableHeaders = [
-      "#️⃣",
-      "🏋️‍♀️  Activity",
-      "⬇️  Down Duration",
-      "⬆️  Up Duration",
-      "⏱️  Ttl Duration",
-    ];
-
-    // Create the table header row dynamically
-    const tableHead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-
-    tableHeaders.forEach((headerText) => {
-      const th = document.createElement("th");
-      th.textContent = headerText;
-      headerRow.appendChild(th);
-    });
-
-    tableHead.appendChild(headerRow);
-    this.pushUpStatsTable.appendChild(tableHead);
 
     // Store the aspect ratio (will be set by PoseProcessor)
     this.aspectRatio = 16 / 9; // Default to 16:9 until we get the webcam's aspect ratio
@@ -283,23 +261,9 @@ export class UIManager {
   `;
   }
 
-  updateActivityLog({ count, upDuration, downDuration }) {
-    const currentActivity = this.exerciseManager.getCurrentExercise();
-    const ttlDuration = this.formatMetric(
-      parseFloat(downDuration) + parseFloat(upDuration),
-      "",
-      2
-    );
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-        <td>${count}</td>
-        <td>${currentActivity}</td>
-        <td>${downDuration}</td>
-        <td>${upDuration}</td>
-        <td>${ttlDuration}</td>
-      `;
-    this.pushUpStatsBody.appendChild(row);
+  updateActivityLog(string) {
+    // TO DO
+    return null;
   }
 
   triggerCelebration() {
@@ -642,7 +606,6 @@ export class UIManager {
     this.currentCount = 0;
     this.counter.textContent = "Push-Ups: 0";
     this.feedback.textContent = "";
-    this.pushUpStatsBody.innerHTML = "";
     console.log("Counter reset to 0");
   }
 }
