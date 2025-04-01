@@ -7,9 +7,11 @@ import { ExerciseManager } from "./exerciseManager.js";
 class ExerciseApp {
   constructor() {
     this.videoCanvas = document.getElementById("videoCanvas");
-    this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
+    console.log("ExerciseApp: Canvas element found:", this.videoCanvas);
+
     this.exerciseManager = new ExerciseManager();
     this.uiManager = new UIManager(this.exerciseManager);
+    this.drawingUtils = new CanvasDrawingUtils(this.videoCanvas);
     this.uiManager.setDrawingUtils(this.drawingUtils);
 
     this.initExercise();
@@ -27,8 +29,21 @@ class ExerciseApp {
   }
 
   async initPoseProcessor() {
-    this.poseProcessor = new PoseProcessor(this.videoCanvas, (results) =>
-      this.handlePoseResults(results)
+    console.log("initPoseProcessor: Waiting for UI to set canvas dimensions");
+    await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay to ensure UI is ready
+    console.log("initPoseProcessor: Canvas dimensions after delay:", {
+      width: this.videoCanvas.width,
+      height: this.videoCanvas.height,
+    });
+
+    this.poseProcessor = new PoseProcessor(
+      this.videoCanvas,
+      (results) => this.handlePoseResults(results),
+      (dimensions) => {
+        // Callback to pass video dimensions to UIManager
+        console.log("ExerciseApp: Received video dimensions:", dimensions);
+        this.uiManager.setAspectRatio(dimensions.aspectRatio);
+      }
     );
     try {
       await this.poseProcessor.initialize();
@@ -50,7 +65,6 @@ class ExerciseApp {
       this.exerciseDetector.reset();
     });
 
-    // TODO: needed?
     document.addEventListener("exerciseChange", (e) =>
       this.handleExerciseChange(e.detail.exerciseType)
     );
@@ -67,17 +81,13 @@ class ExerciseApp {
   async handleExerciseChange(exerciseType) {
     if (!this.exerciseManager.setExercise(exerciseType)) return;
 
-    // Update UI immediately (synchronously)
     this.uiManager.updateUIForExercise();
 
-    // Update side menu selector
     const activityTypeSelect = document.getElementById("activityType");
     if (activityTypeSelect) activityTypeSelect.value = exerciseType;
 
-    // Then handle async operations
     await this.initExercise();
 
-    // Visual feedback (deliberately after async operations)
     this.uiManager.triggerExerciseChangeFeedback();
   }
 

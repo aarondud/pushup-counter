@@ -39,11 +39,6 @@ export class ExerciseDetector {
     );
   }
 
-  // shouldTransition(targetState) {
-  //   const targetConfig = this.config.phases[targetState];
-  //   return this.frameCounters[this.state] >= this.config.minFrames;
-  // }
-
   // Change phases
   transitionTo(newState) {
     if (this.state === newState) {

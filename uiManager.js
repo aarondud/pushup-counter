@@ -35,63 +35,53 @@ export class UIManager {
       leftElbowAngle: {
         label: "💪 Left Elbow",
         value: "N/A",
-
         group: "left",
       },
       leftShoulderAngle: {
         label: "🤷‍♂️ Left Shoulder",
         value: "N/A",
-
         group: "left",
       },
       leftHipAngle: {
         label: "🏃‍♂️ Left Hip",
         value: "N/A",
-
         group: "left",
       },
       leftKneeAngle: {
         label: "🦵 Left Knee",
         value: "N/A",
-
         group: "left",
       },
       // Right Metrics
       rightElbowAngle: {
         label: "💪 Right Elbow",
         value: "N/A",
-
         group: "right",
       },
       rightShoulderAngle: {
         label: "🤷‍♂️ Right Shoulder",
         value: "N/A",
-
         group: "right",
       },
       rightHipAngle: {
         label: "🏃‍♂️ Right Hip",
         value: "N/A",
-
         group: "right",
       },
       rightKneeAngle: {
         label: "🦵 Right Knee",
         value: "N/A",
-
         group: "right",
       },
       // Other Metrics
       avgWristDepth: {
         label: "⬇️ Wrist Depth",
         value: "N/A",
-
         group: "other",
       },
       avgHeightDepth: {
         label: "🧍‍♀️ Height Depth",
         value: "N/A",
-
         group: "other",
       },
       avgHipAngle: {
@@ -124,13 +114,12 @@ export class UIManager {
     this.initSoundControls();
 
     // Show tutorial modal once
+    // Show tutorial modal every session
+    // this.tutorialModal.classList.add("show");
     if (!localStorage.getItem("tutorialShown")) {
       this.tutorialModal.classList.add("show");
       localStorage.setItem("tutorialShown", "true");
     }
-
-    // Show tutorial modal every session
-    // this.tutorialModal.classList.add("show");
 
     // Define the table headers dynamically
     const tableHeaders = [
@@ -145,18 +134,23 @@ export class UIManager {
     const tableHead = document.createElement("thead");
     const headerRow = document.createElement("tr");
 
-    // Loop through tableHeaders and create <th> elements for each
     tableHeaders.forEach((headerText) => {
       const th = document.createElement("th");
       th.textContent = headerText;
       headerRow.appendChild(th);
     });
 
-    // Append the header row to the table head
     tableHead.appendChild(headerRow);
-
-    // Add the table head to the table
     this.pushUpStatsTable.appendChild(tableHead);
+
+    // Store the aspect ratio (will be set by PoseProcessor)
+    this.aspectRatio = 16 / 9; // Default to 16:9 until we get the webcam's aspect ratio
+  }
+
+  setAspectRatio(aspectRatio) {
+    this.aspectRatio = aspectRatio;
+    console.log("UIManager: Aspect ratio set to:", this.aspectRatio);
+    this.adjustCanvasHeights(); // Adjust heights immediately when aspect ratio is set
   }
 
   setupEventListeners() {
@@ -175,7 +169,7 @@ export class UIManager {
     });
 
     document.getElementById("testSound").addEventListener("click", () => {
-      this.playExerciseSound(); // Play current exercise's default sound
+      this.playExerciseSound();
     });
 
     document.getElementById("closeTutorial").addEventListener("click", () => {
@@ -184,9 +178,17 @@ export class UIManager {
 
     this.menuToggle.addEventListener("click", () => this.toggleMenu());
 
-    // Adjust heights on load and resize
-    window.addEventListener("load", () => this.adjustDesktopHeights());
-    window.addEventListener("resize", () => this.adjustDesktopHeights());
+    window.addEventListener("load", () => {
+      console.log("Window load event: Adjusting canvas heights");
+      this.adjustCanvasHeights();
+    });
+    window.addEventListener("resize", () => {
+      console.log("Window resize event: Adjusting canvas heights");
+      this.adjustCanvasHeights();
+    });
+
+    console.log("Initial call: Adjusting canvas heights");
+    this.adjustCanvasHeights();
   }
 
   updateFeedback(message, type) {
@@ -206,7 +208,6 @@ export class UIManager {
   };
 
   renderMetrics(metrics = null) {
-    // If metrics are provided, update the values in metricConfig
     if (metrics) {
       this.metricConfig.leftElbowAngle.value = this.formatMetric(
         metrics.leftElbowAngle,
@@ -263,14 +264,8 @@ export class UIManager {
         this.ANGLE_UNIT,
         this.ANGLE_PRECISION
       );
-      // this.metricConfig.placeholder.value = this.formatMetric(
-      //   null,
-      //   "",
-      //   this.OTHER_METRIC_PRECISION
-      // );
     }
 
-    // Generate HTML using metricConfig values
     this.dataPoints.innerHTML = `
     <h2>Body Positioning</h2>
     <div class="metrics-grid">
@@ -290,7 +285,6 @@ export class UIManager {
 
   updateActivityLog({ count, upDuration, downDuration }) {
     const currentActivity = this.exerciseManager.getCurrentExercise();
-    // console.log("upDuration", upDuration, "downDuration", downDuration);
     const ttlDuration = this.formatMetric(
       parseFloat(downDuration) + parseFloat(upDuration),
       "",
@@ -322,36 +316,30 @@ export class UIManager {
   }
 
   initSideMenu() {
-    // Sync theme toggle with current theme
     const isDarkMode = document.body.dataset.theme === "dark";
     this.sideMenu.querySelector("#menuThemeToggle").checked = isDarkMode;
 
-    // Theme toggle handler
     this.sideMenu
       .querySelector("#menuThemeToggle")
       .addEventListener("change", (e) => {
         document.body.dataset.theme = e.target.checked ? "dark" : "light";
       });
 
-    // Close button handler
     this.sideMenu
       .querySelector(".menu-close-btn")
       .addEventListener("click", () => {
         this.toggleMenu();
       });
 
-    // Info button handler
     this.sideMenu.querySelector("#infoButton").addEventListener("click", () => {
       this.toggleMenu();
       this.infoModal.classList.add("show");
     });
 
-    // Close modal handlers
     document.querySelector(".close-modal").addEventListener("click", () => {
       this.infoModal.classList.remove("show");
     });
 
-    // Dropdown handlers
     this.initDropdown("sideMenuExerciseBtn", "sideMenuExerciseDropdown");
   }
 
@@ -363,7 +351,6 @@ export class UIManager {
     const defaultToggle = document.getElementById("defaultToggle");
     const randomizeBtn = document.getElementById("randomizeStyle");
 
-    // Set initial values andranges from CanvasDrawingUtils
     const defaults = this.drawingUtils.defaultStyles;
     const radiusRange = this.drawingUtils.getLandmarkRadiusRange();
     const widthRange = this.drawingUtils.getConnectionWidthRange();
@@ -377,7 +364,6 @@ export class UIManager {
     connectionWidth.max = widthRange.max;
     connectionWidth.value = widthRange.default;
 
-    // Update styles on change
     const toggleCustomMode = () => {
       defaultToggle.checked = false;
       this.updateStyles();
@@ -387,7 +373,6 @@ export class UIManager {
     landmarkRadius.addEventListener("input", toggleCustomMode);
     connectionWidth.addEventListener("input", toggleCustomMode);
 
-    // Toggle default/custom
     defaultToggle.addEventListener("change", () => {
       if (defaultToggle.checked) {
         this.lastCustomStyles = {
@@ -410,7 +395,6 @@ export class UIManager {
       this.updateStyles();
     });
 
-    // Randomize
     randomizeBtn.addEventListener("click", () => {
       const diceIcon = randomizeBtn.querySelector(".dice-icon");
       diceIcon.style.animation = "";
@@ -446,7 +430,7 @@ export class UIManager {
     const useDefault = document.getElementById("defaultToggle").checked;
 
     if (!useDefault) {
-      document.getElementById("defaultToggle").checked = false; // Switch to custom on change
+      document.getElementById("defaultToggle").checked = false;
     }
 
     this.drawingUtils.setStyles({
@@ -463,12 +447,10 @@ export class UIManager {
     this.sideMenu.classList.toggle("open");
     this.menuOverlay.classList.toggle("active");
 
-    // Toggle body scroll
     document.body.style.overflow = this.sideMenu.classList.contains("open")
       ? "hidden"
       : "";
 
-    // Add/remove click outside listener
     if (this.sideMenu.classList.contains("open")) {
       document.addEventListener("click", this.handleClickOutside);
     } else {
@@ -476,7 +458,6 @@ export class UIManager {
     }
   }
 
-  // Use system preferences for default theme
   initializeTheme() {
     const prefersDarkScheme = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -500,11 +481,10 @@ export class UIManager {
     if (this.exerciseManager.isMuted) return;
 
     const sounds = this.exerciseManager.getCurrentExercise().sounds;
-    const randomSound = sounds[Math.floor(Math.random() * sounds.length)]; // Random selection
+    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
     new Audio(randomSound).play().catch((e) => console.warn("Sound error:", e));
   }
 
-  // Close side menu by clicking outside
   handleClickOutside = (e) => {
     if (
       !this.sideMenu.contains(e.target) &&
@@ -516,7 +496,6 @@ export class UIManager {
   };
 
   updateUIForExercise(exercise = this.exerciseManager.getCurrentExercise()) {
-    // Update both dropdown buttons
     ["counterBtn", "sideMenuExerciseBtn"].forEach((id) => {
       const btn = document.getElementById(id);
       if (btn) {
@@ -531,18 +510,15 @@ export class UIManager {
       }
     });
 
-    // Update CSS variable
     document.documentElement.style.setProperty(
       "--exercise-primary",
       exercise.color
     );
 
-    // Update counter text
     if (this.counter) {
       this.counter.textContent = `${exercise.name}: ${exercise.counts || 0}`;
     }
 
-    // Update body data attribute for theme-specific styling
     document.body.dataset.exercise = this.exerciseManager.currentExercise;
   }
 
@@ -552,8 +528,7 @@ export class UIManager {
 
     if (!btn || !menu) return;
 
-    // Dynamically populate dropdown options
-    menu.innerHTML = ""; // Clear existing static content
+    menu.innerHTML = "";
     Object.entries(this.exerciseManager.exercises).forEach(
       ([key, exercise]) => {
         const button = document.createElement("button");
@@ -563,7 +538,6 @@ export class UIManager {
       }
     );
 
-    // Define handlers as regular functions
     const handleButtonClick = (e) => {
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -597,7 +571,6 @@ export class UIManager {
     const handleOptionClick = (e) => {
       e.stopPropagation();
       const exerciseType = e.target.dataset.exercise;
-      // Dispatch the correct event name that ExerciseApp listens for
       document.dispatchEvent(
         new CustomEvent("exerciseChange", {
           detail: { exerciseType },
@@ -606,14 +579,12 @@ export class UIManager {
       handleOutsideClick();
     };
 
-    // Set up event listeners
     btn.addEventListener("click", handleButtonClick);
     document.addEventListener("click", handleOutsideClick);
     menu.querySelectorAll("button").forEach((option) => {
       option.addEventListener("click", handleOptionClick);
     });
 
-    // Store references for cleanup if needed
     this._dropdownHandlers = this._dropdownHandlers || [];
     this._dropdownHandlers.push({
       btn,
@@ -629,7 +600,7 @@ export class UIManager {
     this.initStylingControls();
   }
 
-  adjustDesktopHeights() {
+  adjustCanvasHeights() {
     const videoContainer = document.querySelector(".video-container");
     const statsContainer = document.querySelector(".stats-container");
     const container = document.querySelector(".container");
@@ -640,50 +611,31 @@ export class UIManager {
       return;
     }
 
-    if (window.innerWidth >= 800) {
-      // Calculate available height (viewport height - header height - padding)
-      const availableHeight = window.innerHeight - 70 - 40; // Header height (70px) + container padding (20px top + 20px bottom)
+    // Calculate available height (viewport height - header height - padding)
+    const availableHeight = window.innerHeight - 70 - 40; // Header height (70px) + container padding (20px top + 20px bottom)
 
-      // Set video container height to maintain 16:9 aspect ratio within available space
-      const videoWidth = videoContainer.offsetWidth;
-      const videoHeight = videoWidth * (9 / 16); // 16:9 aspect ratio
-      const finalVideoHeight = Math.min(videoHeight, availableHeight);
-      videoContainer.style.height = `${finalVideoHeight}px`;
+    // Set video container height based on the preferred aspect ratio
+    const videoWidth = videoContainer.offsetWidth;
+    const videoHeight = videoWidth / this.aspectRatio; // Use the preferred aspect ratio (16:9)
+    const finalVideoHeight = Math.min(videoHeight, availableHeight);
 
-      // Set the canvas dimensions explicitly
-      videoCanvas.width = videoWidth;
-      videoCanvas.height = finalVideoHeight;
+    // Set the video container and canvas dimensions
+    videoContainer.style.height = `${finalVideoHeight}px`;
+    videoCanvas.width = videoWidth;
+    videoCanvas.height = finalVideoHeight;
 
-      // Log the dimensions being set
-      console.log("Desktop: Setting canvas dimensions", {
-        width: videoWidth,
-        height: finalVideoHeight,
-      });
+    // Log the dimensions being set
+    console.log("Setting canvas dimensions", {
+      width: videoWidth,
+      height: finalVideoHeight,
+      aspectRatio: this.aspectRatio,
+    });
 
-      // Set the stats-container height to match the video container height
-      statsContainer.style.height = `${finalVideoHeight}px`;
+    // Set the stats-container height to match the video container height
+    statsContainer.style.height = `${finalVideoHeight}px`;
 
-      // Ensure container is centered vertically
-      container.style.minHeight = `${finalVideoHeight}px`;
-    } else {
-      // Reset heights on mobile
-      videoContainer.style.height = "auto";
-      statsContainer.style.height = "auto";
-      container.style.minHeight = "auto";
-
-      // Set canvas dimensions for mobile (9:16 aspect ratio)
-      const videoWidth = videoContainer.offsetWidth;
-      const videoHeight = videoWidth * (16 / 9); // 9:16 aspect ratio for mobile
-      videoContainer.style.height = `${videoHeight}px`;
-      videoCanvas.width = videoWidth;
-      videoCanvas.height = videoHeight;
-
-      // Log the dimensions being set
-      console.log("Mobile: Setting canvas dimensions", {
-        width: videoWidth,
-        height: videoHeight,
-      });
-    }
+    // Do not override the container's height; let CSS handle it
+    // container.style.height = `${finalVideoHeight + 40}px`; // Removed this line
   }
 
   reset() {

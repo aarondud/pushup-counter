@@ -56,16 +56,18 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-color: var(--bg);
     background-image: linear-gradient(62deg, var(--bg) 0%, #E0C3FC 100%);
-    /* Light theme gradient */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
     color: var(--text);
     transition: background-color 0.3s, color 0.3s, --exercise-primary 0.3s;
     padding-top: 70px;
+    min-height: 100vh;
 }
 
 /* Dark theme gradient */
 [data-theme="dark"] body {
     background-image: linear-gradient(62deg, var(--bg) 0%, #4b3869 100%);
-    /* Dark theme gradient */
 }
 
 
@@ -238,7 +240,6 @@ body {
 /* -------- Container Layout -------- */
 .container {
     width: 100%;
-    /* max-width: 1200px; */
     height: calc(100vh - 70px);
     margin: 0 auto;
     padding: 20px;
@@ -250,6 +251,8 @@ body {
         "video stats-container";
     justify-content: center;
     align-items: center;
+    /* overflow: hidden; */
+    /* Prevent scrolling within the container */
 }
 
 /* -------- Video Container-------- */
@@ -257,10 +260,10 @@ body {
     grid-area: video;
     border-radius: 8px;
     overflow: visible;
-
-    /* New  */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
+
+
 }
 
 #videoCanvas {
@@ -1054,6 +1057,18 @@ input:checked+.slider:before {
         justify-content: flex-start;
         align-items: stretch;
         height: auto;
+        min-height: calc(100vh - 70px);
+
+    }
+
+    .video-container {
+        width: 100%;
+    }
+
+    .stats-container {
+        width: 100%;
+        min-height: fit-content;
+
     }
 
     .feedback {
@@ -1062,6 +1077,7 @@ input:checked+.slider:before {
 
     .metrics {
         width: 100%;
+        height: fit-content;
     }
 
     .stats {
