@@ -633,6 +633,12 @@ export class UIManager {
     const videoContainer = document.querySelector(".video-container");
     const statsContainer = document.querySelector(".stats-container");
     const container = document.querySelector(".container");
+    const videoCanvas = document.querySelector("#videoCanvas");
+
+    if (!videoContainer || !statsContainer || !container || !videoCanvas) {
+      console.warn("One or more elements not found for adjusting heights");
+      return;
+    }
 
     if (window.innerWidth >= 800) {
       // Calculate available height (viewport height - header height - padding)
@@ -644,6 +650,16 @@ export class UIManager {
       const finalVideoHeight = Math.min(videoHeight, availableHeight);
       videoContainer.style.height = `${finalVideoHeight}px`;
 
+      // Set the canvas dimensions explicitly
+      videoCanvas.width = videoWidth;
+      videoCanvas.height = finalVideoHeight;
+
+      // Log the dimensions being set
+      console.log("Desktop: Setting canvas dimensions", {
+        width: videoWidth,
+        height: finalVideoHeight,
+      });
+
       // Set the stats-container height to match the video container height
       statsContainer.style.height = `${finalVideoHeight}px`;
 
@@ -654,6 +670,19 @@ export class UIManager {
       videoContainer.style.height = "auto";
       statsContainer.style.height = "auto";
       container.style.minHeight = "auto";
+
+      // Set canvas dimensions for mobile (9:16 aspect ratio)
+      const videoWidth = videoContainer.offsetWidth;
+      const videoHeight = videoWidth * (16 / 9); // 9:16 aspect ratio for mobile
+      videoContainer.style.height = `${videoHeight}px`;
+      videoCanvas.width = videoWidth;
+      videoCanvas.height = videoHeight;
+
+      // Log the dimensions being set
+      console.log("Mobile: Setting canvas dimensions", {
+        width: videoWidth,
+        height: videoHeight,
+      });
     }
   }
 

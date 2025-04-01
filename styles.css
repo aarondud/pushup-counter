@@ -1,5 +1,6 @@
 :root {
-    --bg: #ffffff;
+    /* --bg: #ffffff; */
+    --bg: #8EC5FC;
     --text: #333333;
     --primary: #4CAF50;
     --error: #f44336;
@@ -15,7 +16,8 @@
 }
 
 [data-theme="dark"] {
-    --bg: #1a1a1a;
+    /* --bg: #1a1a1a; */
+    --bg: #1e2a47;
     --text: #ffffff;
     --primary: #66bb6a;
     --error: #ef5350;
@@ -53,9 +55,17 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background-color: var(--bg);
+    background-image: linear-gradient(62deg, var(--bg) 0%, #E0C3FC 100%);
+    /* Light theme gradient */
     color: var(--text);
     transition: background-color 0.3s, color 0.3s, --exercise-primary 0.3s;
     padding-top: 70px;
+}
+
+/* Dark theme gradient */
+[data-theme="dark"] body {
+    background-image: linear-gradient(62deg, var(--bg) 0%, #4b3869 100%);
+    /* Dark theme gradient */
 }
 
 
@@ -68,8 +78,9 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background-color: var(--card-bg);
+    background-color: transparent;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
     z-index: 1000;
     padding: 10px 20px;
     height: 70px;
@@ -244,20 +255,19 @@ body {
 /* -------- Video Container-------- */
 .video-container {
     grid-area: video;
-    position: relative;
-    width: 100%;
-    background-color: var(--card-bg);
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
+
+    /* New  */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
 #videoCanvas {
     width: 100%;
-    height: 0;
-    padding-bottom: 56.25%;
-    /* 16:9 aspect ratio (9/16 = 0.5625) */
     display: block;
-    background-color: #000;
+    background: transparent;
+    border-radius: 8px;
 }
 
 
@@ -274,6 +284,7 @@ body {
     opacity: 0;
     transition: opacity 0.3s ease;
     text-align: center;
+    z-index: 2;
 }
 
 .feedback.show {
@@ -319,13 +330,16 @@ body {
 .card-component {
     width: 100%;
     padding: 20px 30px;
-    background-color: var(--card-bg);
     color: var(--text);
     border-radius: 8px;
     font-size: 14px;
     box-sizing: border-box;
     /* TO DO only apply to body, not header */
     overflow-y: auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(50px);
+
+
 }
 
 .card-component h2 {
@@ -525,14 +539,16 @@ body.pulse {
     width: 400px;
     height: 100vh;
     overflow-x: hidden;
-    background: var(--card-bg);
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
     z-index: 1000;
     padding: 0 20px 20px 20px;
     flex-direction: column;
     margin-top: 0;
     will-change: transform;
+    transition: transform 0.3s ease;
+
+    background: transparent;
+    backdrop-filter: blur(10px);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .side-menu.open {
@@ -555,6 +571,7 @@ body.pulse {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: white;
 }
 
 .menu-item select {
@@ -588,6 +605,7 @@ body.pulse {
     height: 1px;
     background-color: var(--border-color);
     margin: 10px 0;
+    opacity: 0.5;
 }
 
 .btn-icon {
@@ -629,7 +647,7 @@ body.pulse {
     align-items: center;
     justify-content: flex-end;
     padding: 0;
-    background: var(--card-bg);
+    background: transparent;
     display: flex;
     justify-self: end;
     text-align: center;
@@ -895,6 +913,7 @@ input:checked+.slider:before {
     text-decoration: none;
     margin-top: 20px;
     transition: transform 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .portfolio-link:hover {
@@ -913,6 +932,10 @@ input:checked+.slider:before {
     left: 50%;
     transform: translate(-50%, -50%);
     white-space: nowrap;
+}
+
+.portfolio-btn:hover {
+    transform: scale(1.02);
 }
 
 
@@ -1033,17 +1056,8 @@ input:checked+.slider:before {
         height: auto;
     }
 
-    .video-container {
-        width: 100%;
-    }
-
     .feedback {
         width: 90%;
-    }
-
-    #videoCanvas {
-        padding-bottom: 177.78%;
-        /* 9:16 aspect ratio (16/9 = 1.7778) */
     }
 
     .metrics {
@@ -1052,8 +1066,7 @@ input:checked+.slider:before {
 
     .stats {
         width: 100%;
-        min-height: 200px;
-        /* Minimum fixed height for Activity Log on mobile */
+        min-height: 300px;
     }
 
     .metrics-grid {

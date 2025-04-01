@@ -49,10 +49,17 @@ export class PoseProcessor {
       this.videoElement = document.createElement("video");
       this.videoElement.srcObject = this.videoStream;
       this.videoElement.onloadedmetadata = () => {
-        this.videoCanvas.width = this.videoElement.videoWidth;
-        this.videoCanvas.height = this.videoElement.videoHeight;
         this.videoElement.play();
-        console.log("Video started, width:", this.videoElement.videoWidth);
+        console.log(
+          "Video started, width:",
+          this.videoElement.videoWidth,
+          "height:",
+          this.videoElement.videoHeight
+        );
+        console.log("Canvas dimensions on video start:", {
+          width: this.videoCanvas.width,
+          height: this.videoCanvas.height,
+        });
         this.processVideoFrame();
       };
     } catch (error) {
@@ -69,15 +76,30 @@ export class PoseProcessor {
     const currentTime = performance.now();
     if (currentTime - this.lastVideoTime > 100) {
       this.lastVideoTime = currentTime;
+
+      console.log("Canvas dimensions before drawing video frame:", {
+        width: this.videoCanvas.width,
+        height: this.videoCanvas.height,
+      });
+
+      // Clear the canvas
       this.ctx.clearRect(0, 0, this.videoCanvas.width, this.videoCanvas.height);
-      this.ctx.drawImage(
-        this.videoElement,
-        0,
-        0,
-        this.videoCanvas.width,
-        this.videoCanvas.height
-      );
-      console.log("Drawing video frame");
+
+      // Draw the video frame
+      if (this.videoElement.readyState >= 2) {
+        console.log(
+          "Drawing video frame, video readyState:",
+          this.videoElement.readyState
+        );
+        this.ctx.drawImage(
+          this.videoElement,
+          0,
+          0,
+          this.videoCanvas.width,
+          this.videoCanvas.height
+        );
+      }
+
       if (this.poseLandmarker) {
         this.poseLandmarker.detectForVideo(
           this.videoElement,
