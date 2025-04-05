@@ -73,7 +73,7 @@ export class ExerciseDetector {
 
     // Trigger feedback
     const phaseConfig = this.config.phases[newState];
-    this.onFeedback(phaseConfig.feedback.message, phaseConfig.feedback.type);
+    this.onFeedback(phaseConfig.feedback);
 
     return true;
   }
@@ -139,25 +139,32 @@ export class ExerciseDetector {
     );
   }
 
+  getCurrentState() {
+    return this.state;
+  }
+
   logCompletedRep(metrics) {
     this.stats.valid++;
     const now = new Date();
 
-    this.onExerciseDetected({
-      activityType: this.config.name,
-      emoji: this.config.icon,
-      totalCount: this.stats.valid,
-      timestamp: now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-      keyAngles: { ...this.currentRepMinAngles },
-      durations: {
-        down: this.getPhaseDuration("DOWN"),
-        up: this.getPhaseDuration("UP"),
+    this.onExerciseDetected(
+      {
+        activityType: this.config.name,
+        emoji: this.config.icon,
+        totalCount: this.stats.valid,
+        timestamp: now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
+        keyAngles: { ...this.currentRepMinAngles },
+        durations: {
+          down: this.getPhaseDuration("DOWN"),
+          up: this.getPhaseDuration("UP"),
+        },
       },
-    });
+      this.onFeedback
+    );
 
     this.currentRepMinAngles = {};
   }

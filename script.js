@@ -17,13 +17,14 @@ class ExerciseApp {
     this.initExercise();
     this.initPoseProcessor();
     this.setUpEventListeners();
+    this.initFeedback();
   }
 
   async initExercise() {
     const config = this.exerciseManager.getCurrentExercise();
     this.exerciseDetector = new config.detector(
       (data) => this.handleExerciseDetected(data),
-      (msg, type) => this.uiManager.updateFeedback(msg, type),
+      (feedback) => this.uiManager.updateFeedback(feedback),
       config
     );
   }
@@ -48,7 +49,11 @@ class ExerciseApp {
     try {
       await this.poseProcessor.initialize();
     } catch (error) {
-      this.uiManager.updateFeedback(error.message, "error");
+      this.uiManager.updateFeedback({
+        message: error.message,
+        icon: "🛑",
+        type: "error",
+      });
     }
   }
 
@@ -87,6 +92,27 @@ class ExerciseApp {
     await this.initExercise();
 
     this.uiManager.triggerExerciseChangeFeedback();
+  }
+
+  // Set initial feedback based on the detector's starting state
+  initFeedback() {
+    // Get the current exercise configuration and feedback
+    const initialPhase = this.exerciseDetector.getCurrentState();
+    const config = this.exerciseManager.getCurrentExercise();
+    const initialFeedback = config.phases[initialPhase]?.feedback;
+
+    console.log("Initial feedback:", initialFeedback);
+
+    if (initialFeedback) {
+      this.uiManager.updateFeedback(initialFeedback);
+    } else {
+      console.warn("Initial feedback not found for phase:", initialPhase);
+      this.uiManager.updateFeedback({
+        message: "...",
+        icon: "⏳",
+        type: "interim",
+      });
+    }
   }
 
   handlePoseResults(results) {

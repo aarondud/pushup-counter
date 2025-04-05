@@ -25,39 +25,45 @@ export class ExerciseManager {
           NOT_VISIBLE: {
             feedback: {
               message:
-                "Adjust 📸 camera, 🧍‍♂️ body positioning or 💡 lighting so shoulders, arms, and hips are in view",
+                "Adjust camera, body positioning or lighting so shoulders, arms, and hips are in view",
+              icon: "📸",
               type: "error",
             },
           },
           NOT_READY: {
             feedback: {
-              message: "🏋️‍♀️ Assume push-up position",
-              type: "assume",
+              message: "Assume push-up position",
+              icon: "🏋️‍♀️",
+              type: "interim",
             },
           },
           READY: {
             feedback: {
-              message: "💪 Ready to push",
+              message: "Ready to push",
+              icon: "✅",
               type: "success",
             },
           },
           DOWN: {
             feedback: {
-              message: "⬇️ Down phase detected",
-              type: "phase",
+              message: "Down phase detected",
+              icon: "⬇️",
+              type: "success",
             },
           },
           PARTIAL: {
             feedback: {
-              message: " **red** Partial rep",
-              type: "assume",
+              message: "Partial rep",
+              icon: "⚠️",
+              type: "interim",
             },
           },
-        },
-        UP: {
-          feedback: {
-            message: "⬆️ Up phase detected",
-            type: "phase",
+          UP: {
+            feedback: {
+              message: "Up phase detected",
+              icon: "⬆️",
+              type: "success",
+            },
           },
         },
         conditions: {
@@ -125,16 +131,4 @@ export class ExerciseManager {
       type: this.currentExercise,
     };
   }
-
-  //   loadCountsFromStorage() {
-  //     const saved = localStorage.getItem("exerciseCounts");
-  //     if (saved) {
-  //       const counts = JSON.parse(saved);
-  //       Object.keys(counts).forEach((ex) => {
-  //         if (this.exercises[ex]) {
-  //           this.exercises[ex].counts = counts[ex].counts || 0;
-  //         }
-  //       });
-  //     }
-  //   }
 }

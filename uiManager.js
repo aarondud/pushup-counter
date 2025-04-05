@@ -135,9 +135,34 @@ export class UIManager {
     this.adjustCanvasHeights();
   }
 
-  updateFeedback(message, type) {
-    this.feedback.textContent = message;
-    this.feedback.className = `feedback ${type} show`;
+  updateFeedback(feedbackObj) {
+    console.log("Updating feedback:", feedbackObj);
+    const feedbackContainer = document.getElementById("feedback");
+    const feedbackIcon = feedbackContainer.querySelector(".feedback-icon");
+    const feedbackText = feedbackContainer.querySelector(".feedback-message");
+
+    if (!feedbackObj || !feedbackObj.message) {
+      feedbackContainer.style.display = "none";
+      return;
+    }
+
+    // Update the feedback container with the message, icon, and type
+    feedbackContainer.style.display = "flex";
+    feedbackIcon.textContent = feedbackObj.icon || "ℹ️"; // Default icon if none provided
+    feedbackText.textContent = feedbackObj.message;
+
+    // Trigger animation
+    feedbackText.style.animation = "none"; // Reset the animation
+    feedbackIcon.style.animation = "none";
+
+    feedbackText.offsetHeight; // Trigger reflow to restart the animation
+    feedbackIcon.offsetHeight;
+
+    feedbackText.style.animation = "fadeIn 0.3s ease";
+    feedbackIcon.style.animation = "fadeIn 0.3s ease";
+
+    // Set the data-type attribute on the feedbackContainer, not the feedbackIcon
+    feedbackContainer.setAttribute("data-type", feedbackObj.type || "success");
   }
 
   updateCounter(count) {
@@ -272,6 +297,14 @@ export class UIManager {
     void document.body.offsetWidth;
     document.body.classList.add("pulse");
     this.playExerciseSound();
+
+    // Trigger counter pop animation
+    const counterValue = document.querySelector("#counter .counter-value");
+    counterValue.textContent = count;
+
+    counterValue.style.animation = "none";
+    counterValue.offsetHeight; // Trigger reflow
+    counterValue.style.animation = "counterPop 0.2s ease";
   }
 
   triggerExerciseChangeFeedback() {
@@ -570,6 +603,9 @@ export class UIManager {
     const statsContainer = document.querySelector(".stats-container");
     const container = document.querySelector(".container");
     const videoCanvas = document.querySelector("#videoCanvas");
+    const counterFeedbackWrapper = document.querySelector(
+      ".counter-feedback-wrapper"
+    );
 
     if (!videoContainer || !statsContainer || !container || !videoCanvas) {
       console.warn("One or more elements not found for adjusting heights");
@@ -583,11 +619,14 @@ export class UIManager {
     const videoWidth = videoContainer.offsetWidth;
     const videoHeight = videoWidth / this.aspectRatio; // Use the preferred aspect ratio (16:9)
     const finalVideoHeight = Math.min(videoHeight, availableHeight);
+    const finalContainerHeight =
+      finalVideoHeight + counterFeedbackWrapper.offsetHeight + 30;
 
     // Set the video container and canvas dimensions
-    videoContainer.style.height = `${finalVideoHeight}px`;
     videoCanvas.width = videoWidth;
     videoCanvas.height = finalVideoHeight;
+    videoContainer.style.height = `${finalContainerHeight}px`;
+    // TODO: make sure the height is updated with padding preferences
 
     // Log the dimensions being set
     console.log("Setting canvas dimensions", {
@@ -597,7 +636,7 @@ export class UIManager {
     });
 
     // Set the stats-container height to match the video container height
-    statsContainer.style.height = `${finalVideoHeight}px`;
+    statsContainer.style.height = `${finalContainerHeight}px`;
 
     // Do not override the container's height; let CSS handle it
     // container.style.height = `${finalVideoHeight + 40}px`; // Removed this line

@@ -103,8 +103,19 @@
 
     <div class="container">
       <div class="video-container">
+        <!-- Feedback Row -->
+        <div class="counter-feedback-wrapper">
+          <div class="counter-container" id="counter">
+            Count: <span class="counter-value">0</span>
+          </div>
+          <div class="feedback-container" id="feedback">
+            <span class="feedback-icon"></span>
+            <span class="feedback-message"></span>
+          </div>
+        </div>
+
+        <!-- Video Canvas -->
         <canvas id="videoCanvas"></canvas>
-        <div id="feedback" class="feedback"></div>
       </div>
 
       <!-- Statistics Container -->
