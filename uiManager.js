@@ -1,5 +1,7 @@
 // Module handles all DOM updates and user interactions.
 
+import { MetricsStructure, MetricLabels } from "./metricsStructure.js";
+
 export class UIManager {
   constructor(exerciseManager) {
     this.feedback = document.getElementById("feedback");
@@ -30,72 +32,8 @@ export class UIManager {
     document.body.appendChild(this.sideMenu);
     document.body.appendChild(this.menuOverlay);
 
-    // Define single source of truth for metrics
-    this.metricConfig = {
-      // Left Metrics
-      leftElbowAngle: {
-        label: "💪 Left Elbow",
-        value: "N/A",
-        group: "left",
-      },
-      leftShoulderAngle: {
-        label: "🤷‍♂️ Left Shoulder",
-        value: "N/A",
-        group: "left",
-      },
-      leftHipAngle: {
-        label: "🏃‍♂️ Left Hip",
-        value: "N/A",
-        group: "left",
-      },
-      leftKneeAngle: {
-        label: "🦵 Left Knee",
-        value: "N/A",
-        group: "left",
-      },
-      // Right Metrics
-      rightElbowAngle: {
-        label: "💪 Right Elbow",
-        value: "N/A",
-        group: "right",
-      },
-      rightShoulderAngle: {
-        label: "🤷‍♂️ Right Shoulder",
-        value: "N/A",
-        group: "right",
-      },
-      rightHipAngle: {
-        label: "🏃‍♂️ Right Hip",
-        value: "N/A",
-        group: "right",
-      },
-      rightKneeAngle: {
-        label: "🦵 Right Knee",
-        value: "N/A",
-        group: "right",
-      },
-      // Other Metrics
-      avgWristDepth: {
-        label: "⬇️ Wrist Depth",
-        value: "N/A",
-        group: "other",
-      },
-      avgHeightDepth: {
-        label: "🧍‍♀️ Height Depth",
-        value: "N/A",
-        group: "other",
-      },
-      avgHipAngle: {
-        label: "📏 Back Angle",
-        value: "N/A",
-        group: "other",
-      },
-      placeholder: {
-        label: "📏 Placeholder",
-        value: "N/A",
-        group: "other",
-      },
-    };
+    // Initialise live metrics configuration
+    this.metricConfig = this.initMetricConfig();
     this.ANGLE_PRECISION = 0;
     this.OTHER_METRIC_PRECISION = 0.3;
     this.ANGLE_UNIT = "°";
@@ -213,80 +151,96 @@ export class UIManager {
     return `${Number(value).toFixed(precision)} ${unit}`;
   };
 
-  renderMetrics(metrics = null) {
-    if (metrics) {
-      this.metricConfig.leftElbowAngle.value = this.formatMetric(
-        metrics.leftElbowAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.rightElbowAngle.value = this.formatMetric(
-        metrics.rightElbowAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.avgWristDepth.value = this.formatMetric(
-        metrics.avgWristDepth,
-        "",
-        this.OTHER_METRIC_PRECISION
-      );
-      this.metricConfig.leftShoulderAngle.value = this.formatMetric(
-        metrics.leftShoulderAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.rightShoulderAngle.value = this.formatMetric(
-        metrics.rightShoulderAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.avgHeightDepth.value = this.formatMetric(
-        metrics.avgHeightDepth,
-        "",
-        this.OTHER_METRIC_PRECISION
-      );
-      this.metricConfig.leftHipAngle.value = this.formatMetric(
-        metrics.leftHipAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.rightHipAngle.value = this.formatMetric(
-        metrics.rightHipAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.avgHipAngle.value = this.formatMetric(
-        metrics.avgHipAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.leftKneeAngle.value = this.formatMetric(
-        metrics.leftKneeAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-      this.metricConfig.rightKneeAngle.value = this.formatMetric(
-        metrics.rightKneeAngle,
-        this.ANGLE_UNIT,
-        this.ANGLE_PRECISION
-      );
-    }
+  initMetricConfig() {
+    const metricConfig = {};
 
-    this.dataPoints.innerHTML = `
-    <h2>Body Positioning</h2>
-    <div class="metrics-grid">
-      ${Object.entries(this.metricConfig)
-        .map(
-          ([key, { label, value, group }]) => `
-        <div class="metric-item ${group}">
-          <span class="label">${label}</span>
-          <span class="value">${value}</span>
-        </div>
-      `
-        )
-        .join("")}
-    </div>
-  `;
+    // Populate metricConfig with categories (angles, depths) and their metrics
+    Object.entries(MetricsStructure).forEach(([category, metrics]) => {
+      metricConfig[category] = {};
+
+      Object.entries(metrics).forEach(([metricName, types]) => {
+        metricConfig[category][metricName] = {};
+
+        types.forEach((type) => {
+          // Get label information from MetricLabels, fallback to default if not found
+          const labelInfo = MetricLabels[metricName] || {
+            default: metricName,
+            icon: "📊",
+          };
+
+          // Create the label with icon, type (left/right/average), and metric name
+          const typeLabel =
+            type === "average"
+              ? "Avg"
+              : type.charAt(0).toUpperCase() + type.slice(1);
+          metricConfig[category][metricName][type] = {
+            label: `${labelInfo.icon} ${typeLabel} ${labelInfo.default}`,
+            value: "N/A",
+            group: type,
+          };
+        });
+      });
+    });
+
+    return metricConfig;
+  }
+
+  updateMetrics(metrics = null) {
+    if (!metrics) return;
+
+    // Update the metricConfig with the latest values from metrics
+    Object.entries(MetricsStructure).forEach(([category, metricsGroup]) => {
+      if (category !== "angles") return;
+
+      Object.entries(metricsGroup).forEach(([metricName, types]) => {
+        types.forEach((type) => {
+          const config = this.metricConfig[category][metricName][type];
+          const metricValue = metrics[category]?.[metricName]?.[type];
+
+          // Format the value for angles
+          config.value = this.formatMetric(
+            metricValue,
+            this.ANGLE_UNIT,
+            this.ANGLE_PRECISION
+          );
+        });
+      });
+    });
+
+    // Call renderMetrics to render the updated values
+    this.renderMetrics();
+  }
+
+  renderMetrics() {
+    const metricContainer = document.getElementById("metricContainer");
+    if (!metricContainer) return;
+
+    // Generate HTML for each joint (elbow, shoulder, hip, knee)
+    const angleMetrics = this.metricConfig.angles || {};
+    const html = Object.keys(angleMetrics)
+      .map((metricName) => {
+        const metric = angleMetrics[metricName];
+        const labelInfo = MetricLabels[metricName] || {
+          default: metricName,
+          icon: "📊",
+        };
+
+        const leftValue = metric.left?.value || "N/A";
+        const rightValue = metric.right?.value || "N/A";
+
+        return `
+          <div class="metric-row">
+            <span class="metric-label">${labelInfo.icon} ${labelInfo.default}</span>
+            <span class="metric-value left-angle">${leftValue}</span>
+            <span class="metric-divider">|</span>
+            <span class="metric-value right-angle">${rightValue}</span>
+          </div>
+        `;
+      })
+      .join("");
+
+    // Update the metric container with the new HTML
+    metricContainer.innerHTML = html;
   }
 
   // Update activity log with animation

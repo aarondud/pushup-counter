@@ -95,7 +95,7 @@ class ExerciseApp {
 
     const metrics = PoseCalculations.calculateMetrics(landmarks);
     this.exerciseDetector.processPose(landmarks, metrics);
-    this.uiManager.renderMetrics(metrics);
+    this.uiManager.updateMetrics(metrics);
   }
 
   // Function to generate a random log sentence
