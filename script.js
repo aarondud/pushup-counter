@@ -84,7 +84,7 @@ class ExerciseApp {
   async handleExerciseChange(exerciseType) {
     if (!this.exerciseManager.setExercise(exerciseType)) return;
 
-    this.uiManager.updateUIForExercise();
+    this.uiManager.updateExerciseUI();
 
     const activityTypeSelect = document.getElementById("activityType");
     if (activityTypeSelect) activityTypeSelect.value = exerciseType;

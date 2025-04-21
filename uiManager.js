@@ -6,12 +6,8 @@ export class UIManager {
   constructor(exerciseManager) {
     this.feedback = document.getElementById("feedback");
     this.counter = document.getElementById("counter");
-    this.isMuted = false;
-
-    // Data elements
-    this.dataPoints = document.getElementById("dataPoints");
-    this.activityLog = document.getElementById("activityLog");
     this.activityLogBody = document.getElementById("activityLogBody");
+    this.isMuted = false;
 
     // Modal elements
     this.tutorialModal = document.getElementById("tutorialModal");
@@ -28,11 +24,7 @@ export class UIManager {
     this.menuOverlay = document.getElementById("menuOverlay");
     this.lastCustomStyles = null;
 
-    // Add elements to DOM
-    document.body.appendChild(this.sideMenu);
-    document.body.appendChild(this.menuOverlay);
-
-    // Initialise live metrics configuration
+    // Initialise metrics configuration
     this.metricConfig = this.initMetricConfig();
     this.ANGLE_PRECISION = 0;
     this.OTHER_METRIC_PRECISION = 0.3;
@@ -43,14 +35,22 @@ export class UIManager {
     this.lastDataPoints = null;
 
     this.exerciseManager = exerciseManager;
-    this.updateUIForExercise();
+    this.currentExercise = this.exerciseManager.currentExercise;
+
+    // Initialise UI components
     this.drawingUtils = null;
     this.renderMetrics();
-    this.setupEventListeners();
-    this.initializeTheme();
+    this.initTheme();
     this.initDropdown("counterBtn", "exerciseDropdown");
+    this.initExerciseTabs();
     this.initSideMenu();
     this.initSoundControls();
+
+    // Update UI and tabs to reflect initial exercise
+    this.updateExerciseUI();
+
+    // Setup event listeners
+    this.setupEventListeners();
 
     // Show tutorial modal once
     // Show tutorial modal every session
@@ -321,6 +321,7 @@ export class UIManager {
       .querySelector("#menuThemeToggle")
       .addEventListener("change", (e) => {
         document.body.dataset.theme = e.target.checked ? "dark" : "light";
+        this.updateExerciseUI();
       });
 
     this.sideMenu
@@ -456,12 +457,17 @@ export class UIManager {
     }
   }
 
-  initializeTheme() {
-    const prefersDarkScheme = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    document.body.dataset.theme = prefersDarkScheme ? "dark" : "light";
-    return prefersDarkScheme;
+  initTheme() {
+    // // Set preferred theme
+    // const prefersDarkScheme = window.matchMedia(
+    //   "(prefers-color-scheme: dark)"
+    // ).matches;
+    // document.body.dataset.theme = prefersDarkScheme ? "dark" : "light";
+    // return prefersDarkScheme;
+
+    // Set dark default
+    document.body.dataset.theme = "dark";
+    return true;
   }
 
   initSoundControls() {
@@ -492,33 +498,6 @@ export class UIManager {
       this.toggleMenu();
     }
   };
-
-  updateUIForExercise(exercise = this.exerciseManager.getCurrentExercise()) {
-    ["counterBtn", "sideMenuExerciseBtn"].forEach((id) => {
-      const btn = document.getElementById(id);
-      if (btn) {
-        const nameEl =
-          btn.querySelector(".exercise-name") ||
-          btn.querySelector("#exerciseName");
-        const countEl =
-          btn.querySelector(".exercise-count") ||
-          btn.querySelector("#exerciseCount");
-        if (nameEl) nameEl.textContent = exercise.name;
-        if (countEl) countEl.textContent = exercise.counts || 0;
-      }
-    });
-
-    document.documentElement.style.setProperty(
-      "--exercise-primary",
-      exercise.color
-    );
-
-    if (this.counter) {
-      this.counter.textContent = `${exercise.name}: ${exercise.counts || 0}`;
-    }
-
-    document.body.dataset.exercise = this.exerciseManager.currentExercise;
-  }
 
   initDropdown(buttonId, menuId) {
     const btn = document.getElementById(buttonId);
@@ -590,6 +569,100 @@ export class UIManager {
       handleButtonClick,
       handleOutsideClick,
       handleOptionClick,
+    });
+  }
+
+  initExerciseTabs() {
+    const headerCard = document.querySelector(".header-card");
+    if (!headerCard) return;
+
+    // Create the tabs container
+    const tabsContainer = document.createElement("div");
+    tabsContainer.className = "exercise-tabs";
+    tabsContainer.id = "exerciseTabs";
+
+    // Create tabs for each exercise
+    Object.entries(this.exerciseManager.exercises).forEach(
+      ([key, exercise]) => {
+        const tab = document.createElement("div");
+        tab.className = "exercise-tab";
+        tab.dataset.exercise = key;
+        tab.textContent = exercise.name;
+        if (key === this.currentExercise) {
+          tab.classList.add("active");
+        }
+        tabsContainer.appendChild(tab);
+      }
+    );
+
+    // Insert tabs into the header
+    const counterDropdown = document.querySelector(".counter-dropdown");
+    headerCard.insertBefore(tabsContainer, counterDropdown);
+
+    // Add event listeners for tab clicks
+    tabsContainer.querySelectorAll(".exercise-tab").forEach((tab) => {
+      tab.addEventListener("click", (e) => {
+        const exerciseType = e.target.dataset.exercise;
+        document.dispatchEvent(
+          new CustomEvent("exerciseChange", {
+            detail: { exerciseType },
+          })
+        );
+      });
+    });
+  }
+
+  updateExerciseUI(exerciseType = this.exerciseManager.currentExercise) {
+    const exercise =
+      this.exerciseManager.exercises[exerciseType] ||
+      this.exerciseManager.getCurrentExercise();
+    this.currentExercise = exerciseType;
+
+    requestAnimationFrame(() => {
+      // Check the current theme and set --exercise-primary accordingly
+      const isDarkMode = document.body.dataset.theme === "dark";
+      const color = isDarkMode ? exercise.colors.dark : exercise.colors.light;
+      document.body.style.setProperty("--exercise-primary", color || "#A3D9FF");
+
+      // Update tabs
+      const tabs = document.querySelectorAll(".exercise-tab");
+      tabs.forEach((tab, index) => {
+        if (tab.dataset.exercise === exerciseType) {
+          tab.classList.add("active");
+        } else {
+          tab.classList.remove("active");
+        }
+      });
+
+      // Dropdown and counter updates
+      ["counterBtn", "sideMenuExerciseBtn"].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          const nameEl =
+            btn.querySelector(".exercise-name") ||
+            btn.querySelector("#exerciseName");
+          const countEl =
+            btn.querySelector(".exercise-count") ||
+            btn.querySelector("#exerciseCount");
+          if (nameEl) {
+            if (id === "sideMenuExerciseBtn") {
+              const iconEl = nameEl.querySelector(".exercise-icon");
+              const textEl = nameEl.querySelector(".exercise-text");
+              if (iconEl) iconEl.textContent = exercise.icon || "";
+              if (textEl) textEl.textContent = exercise.name;
+            } else {
+              nameEl.textContent = exercise.name;
+            }
+          }
+          if (countEl) countEl.textContent = exercise.counts || 0;
+        }
+      });
+
+      if (this.counter) {
+        this.counter.textContent = `${exercise.name}: ${exercise.counts || 0}`;
+      }
+
+      document.body.dataset.exercise = this.exerciseManager.currentExercise;
     });
   }
 

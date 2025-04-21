@@ -32,77 +32,78 @@
       </div>
     </div>
 
-    <header class="header">
-      <!-- TODO: UPDATE REPO LINK -->
-      <!-- Social Icons -->
-      <div class="social-icons">
-        <a
-          href="https://aarondudley.vercel.app"
-          target="_blank"
-          class="social-icon portfolio-link"
-        >
-          <img src="./media/memoji-icon-color.png" alt="Aaron's Memoji" />
-        </a>
-        <a
-          href="https://github.com/aarondud"
-          target="_blank"
-          class="social-icon github-link"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <header class="header-container">
+      <div class="header-card card-component">
+        <!-- TODO: UPDATE REPO LINK -->
+        <!-- Social Icons -->
+        <div class="social-icons">
+          <a
+            href="https://aarondudley.vercel.app"
+            target="_blank"
+            class="social-icon portfolio-link"
+          >
+            <img src="./media/memoji-icon-color.png" alt="Aaron's Memoji" />
+          </a>
+          <a
+            href="https://github.com/aarondud"
+            target="_blank"
+            class="social-icon github-link"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.285-.021-1.233-.021-2.236-3.338.724-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.091-.705.072-.692.072-.692 1.214.081 1.852 1.247 1.852 1.247 1.075 1.852 2.807 1.316 3.492.998.108-.775.418-1.316.762-1.616-2.665-.303-5.466-1.332-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.272 3.302 1.229.957-.266 1.983-.399 3-.405 1.017.006 2.043.139 3 .405 2.289-1.501 3.302-1.229 3.302-1.229.654 1.652.243 2.873.12 3.176.771.84 1.235 1.911 1.235 3.221 0 4.61-2.805 5.625-5.475 5.931.429.3.81 1.096.81 2.221 0 1.604-.021 2.895-.021 3.286 0 .315.189.678.801.576C20.565 21.8 24 17.302 24 12 24 5.373 18.627 0 12 0z"
+                fill="currentColor"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Counter -->
+        <div class="counter-dropdown">
+          <button class="counter-btn" id="counterBtn">
+            <span id="exerciseName">Push-Ups</span>:
+            <span id="exerciseCount">0</span>
+            <span class="dropdown-arrow">▼</span>
+          </button>
+
+          <div class="dropdown-content" id="exerciseDropdown"></div>
+        </div>
+
+        <!-- Menu toggle -->
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+          <svg
+            class="hamburger-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.285-.021-1.233-.021-2.236-3.338.724-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.091-.705.072-.692.072-.692 1.214.081 1.852 1.247 1.852 1.247 1.075 1.852 2.807 1.316 3.492.998.108-.775.418-1.316.762-1.616-2.665-.303-5.466-1.332-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.272 3.302 1.229.957-.266 1.983-.399 3-.405 1.017.006 2.043.139 3 .405 2.289-1.501 3.302-1.229 3.302-1.229.654 1.652.243 2.873.12 3.176.771.84 1.235 1.911 1.235 3.221 0 4.61-2.805 5.625-5.475 5.931.429.3.81 1.096.81 2.221 0 1.604-.021 2.895-.021 3.286 0 .315.189.678.801.576C20.565 21.8 24 17.302 24 12 24 5.373 18.627 0 12 0z"
-              fill="currentColor"
-            />
+              d="M20 7L4 7"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            ></path>
+            <path
+              d="M20 12L4 12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            ></path>
+            <path
+              d="M20 17L4 17"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            ></path>
           </svg>
-        </a>
-        <button id="testLog" class="btn">Test Log</button>
-      </div>
-
-      <!-- Counter -->
-      <div class="counter-dropdown">
-        <button class="counter-btn" id="counterBtn">
-          <span id="exerciseName">Push-Ups</span>:
-          <span id="exerciseCount">0</span>
-          <span class="dropdown-arrow">▼</span>
         </button>
-
-        <div class="dropdown-content" id="exerciseDropdown"></div>
       </div>
-
-      <!-- Menu toggle -->
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
-        <svg
-          class="hamburger-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M20 7L4 7"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          ></path>
-          <path
-            d="M20 12L4 12"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          ></path>
-          <path
-            d="M20 17L4 17"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          ></path>
-        </svg>
-      </button>
     </header>
 
     <div class="container">
-      <div class="video-container">
+      <div class="video-container card-component">
         <!-- Feedback Row -->
         <div class="counter-feedback-wrapper">
           <div class="counter-container" id="counter">
@@ -169,8 +170,11 @@
           <span>Activity Type</span>
           <div class="dropdown-container">
             <button id="sideMenuExerciseBtn" class="dropdown-btn">
-              <span class="exercise-name">Push-Ups</span>
-              <span class="dropdown-arrow-side">▼</span>
+              <span class="exercise-name">
+                <span class="exercise-icon"></span>
+                <span class="exercise-text"></span>
+              </span>
+              <span class="chevron-down">▼</span>
             </button>
             <div id="sideMenuExerciseDropdown" class="dropdown-options"></div>
           </div>
@@ -255,6 +259,7 @@
           <button id="pause" class="btn">Pause</button>
           <button id="play" class="btn" disabled>Play</button>
           <button id="testSound" class="btn">Test Sound</button>
+          <button id="testLog" class="btn">Test Log</button>
         </div>
       </div>
 

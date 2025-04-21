@@ -9,7 +9,7 @@ export class ExerciseManager {
         name: "Push-Ups",
         detector: PushUpDetector,
         icon: "💪",
-        color: "#2196f3", // blue
+        colors: { light: "#3787C7", dark: "#97C9EC" },
         sounds: [
           "media/carryboats.mp3",
           "media/imback.mp3",
@@ -26,14 +26,16 @@ export class ExerciseManager {
             feedback: {
               message:
                 "Adjust camera, body positioning or lighting so shoulders, arms, and hips are in view",
-              icon: "📸",
+              //   icon: "📸",
+              icon: "🛑",
               type: "error",
             },
           },
           NOT_READY: {
             feedback: {
               message: "Assume push-up position",
-              icon: "🏋️‍♀️",
+              //   icon: "🏋️‍♀️",
+              icon: "🔶",
               type: "interim",
             },
           },
@@ -75,11 +77,23 @@ export class ExerciseManager {
           heightDiffMax: 0.05,
         },
       },
+      punch: {
+        name: "Punches",
+        detector: PunchDetector,
+        icon: "🥊",
+        colors: { light: "#C77A34", dark: "#F0B478" },
+        sounds: ["media/punch1.mp3"],
+        counts: 0,
+        requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
+        keyMetrics: ["elbow"],
+        thresholds: {},
+      },
+
       squat: {
         name: "Squats",
         detector: SquatDetector,
         icon: "🏋️‍♂️",
-        color: "#795548", // brown
+        colors: { light: "#D436B9", dark: "#F79EE6" },
         sounds: [
           "media/yeahbuddy.mp3",
           "media/lightweight.mp3",
@@ -90,17 +104,6 @@ export class ExerciseManager {
         counts: 0,
         requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
         keyMetrics: ["hip", "knee"],
-        thresholds: {},
-      },
-      punch: {
-        name: "Punches",
-        detector: PunchDetector,
-        icon: "🥊",
-        color: "#9c27b0", // purple
-        sounds: ["media/punch1.mp3"],
-        counts: 0,
-        requiredLandmarks: [11, 12, 13, 14, 15, 16, 23, 24], // TODO adjust
-        keyMetrics: ["elbow"],
         thresholds: {},
       },
     };

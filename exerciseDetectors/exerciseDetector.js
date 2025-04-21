@@ -11,7 +11,7 @@ export class ExerciseDetector {
     // TO DO needed?
     // Validate config.phases exists
     if (!this.config.phases) {
-      console.error("Missing phases in config");
+      console.error("Missing phases in config", this.config.phases);
       this.config.phases = {};
     }
 
